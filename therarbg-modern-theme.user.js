@@ -1,10 +1,16 @@
 // ==UserScript==
 // @name         TheRARBG Modern Results Theme
 // @namespace    local.therarbg.theme
-// @version      0.1.4
+// @version      0.1.5
 // @description  A cleaner, page-aware dark theme for TheRARBG.
 // @author       Citizen
-// @match        https://therarbg.com/*
+// @homepageURL  https://github.com/Ci303/therarbg-modern-theme
+// @supportURL   https://github.com/Ci303/therarbg-modern-theme/issues
+// @updateURL    https://raw.githubusercontent.com/Ci303/therarbg-modern-theme/main/therarbg-modern-theme.user.js
+// @downloadURL  https://raw.githubusercontent.com/Ci303/therarbg-modern-theme/main/therarbg-modern-theme.user.js
+// @match        https://therarbg.com/
+// @match        https://therarbg.com/get-posts*
+// @match        https://therarbg.com/catalog*
 // @run-at       document-start
 // @grant        none
 // @noframes
