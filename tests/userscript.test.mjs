@@ -13,7 +13,7 @@ function metadataValues(name) {
 }
 
 test('userscript metadata is safe and release-ready', () => {
-  assert.deepEqual(metadataValues('version'), ['0.1.6']);
+  assert.deepEqual(metadataValues('version'), ['0.1.7']);
   assert.deepEqual(metadataValues('grant'), ['none']);
   assert.deepEqual(metadataValues('match'), [
     'https://therarbg.com/',
@@ -167,4 +167,20 @@ test('cryptic content-type table headings are labelled clearly', () => {
   assert.match(source, /heading\.textContent = 'Type'/);
   assert.match(source, /heading\.setAttribute\('aria-label', 'Content type'\)/);
   assert.match(source, /labelContentTypeColumns\(document\)/);
+});
+
+test('adult-content visibility is synchronised with the XXX search filter', () => {
+  assert.match(source, /const adultFilterCheckbox = postContainer\.querySelector\('#radXXX'\)/);
+  assert.match(source, /adultFilter\.hidden = !isAdultContentVisible/);
+  assert.match(source, /adultFilterCheckbox\.disabled = !isAdultContentVisible/);
+  assert.match(source, /adultFilterCheckbox\.checked = false/);
+  assert.match(source, /savedFilters\.xxx = 'false'/);
+  assert.match(source, /adultToggle\.addEventListener\('change', synchroniseAdultFilter\)/);
+  assert.match(source, /\.tm-rarbg-adult-filter\[hidden\] \{\s*display: none !important;/);
+});
+
+test('showing thumbnails refreshes a carousel initialised while hidden', () => {
+  assert.match(source, /#mySlides1\.slick-initialized/);
+  assert.match(source, /carousel\.slick\('setPosition'\)/);
+  assert.match(source, /if \(isOpen\) refreshThumbnailCarousel\(\)/);
 });
