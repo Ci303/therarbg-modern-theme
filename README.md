@@ -48,6 +48,8 @@ The selected colour and extras setting are stored locally for later visits. To r
 
 Tampermonkey can check the repository automatically using the update addresses in the userscript metadata. You can also reinstall from the installation link above to obtain the current version.
 
+If you installed v0.1.4 manually, open the installation link once and confirm the update to v0.1.5. Earlier versions did not contain the repository update address, so they cannot discover this release automatically. Future versions can then be found through Tampermonkey's update checks.
+
 ## Disable or remove
 
 Open the Tampermonkey dashboard and either switch off **TheRARBG Modern Results Theme** temporarily or delete it. Reload TheRARBG afterwards; the website itself is not modified.
