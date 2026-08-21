@@ -13,7 +13,7 @@ function metadataValues(name) {
 }
 
 test('userscript metadata is safe and release-ready', () => {
-  assert.deepEqual(metadataValues('version'), ['0.1.5']);
+  assert.deepEqual(metadataValues('version'), ['0.1.6']);
   assert.deepEqual(metadataValues('grant'), ['none']);
   assert.deepEqual(metadataValues('match'), [
     'https://therarbg.com/',
@@ -68,4 +68,103 @@ test('every referenced theme variable is declared', () => {
 
   assert.ok(declarations.size > 30, 'Unexpectedly few theme variables were found');
   assert.deepEqual([...references].filter((name) => !declarations.has(name)), []);
+});
+
+test('homepage categories use the intended dashboard order', () => {
+  const layoutBlock = source.match(/const HOME_SECTION_LAYOUT = \[([\s\S]*?)\n  \];/);
+  assert.ok(layoutBlock, 'HOME_SECTION_LAYOUT was not found');
+
+  const selectors = [...layoutBlock[1].matchAll(/\['([^']+)',\s*'[^']+'\]/g)].map(
+    ([, selector]) => selector,
+  );
+
+  assert.deepEqual(selectors, [
+    '.isMovies',
+    '.isDocumentaries',
+    '.isTV',
+    '.isAnime',
+    '.isGames',
+    '.isApps',
+    '.isMusic',
+    '.isBooks',
+    '.isXXX',
+  ]);
+  assert.match(source, /if \(name === 'xxx'\) element\.classList\.add\('tm-rarbg-home-category-wide'\)/);
+});
+
+test('paired homepage cards stretch to equal row heights', () => {
+  assert.match(
+    source,
+    /\.tm-rarbg-home-grid \{[\s\S]*?align-items: stretch;/,
+  );
+  assert.match(
+    source,
+    /\.tm-rarbg-home-category \{[\s\S]*?display: flex;[\s\S]*?height: 100%;[\s\S]*?flex-direction: column;/,
+  );
+  assert.match(
+    source,
+    /\.tm-rarbg-home-actions \{[\s\S]*?grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);[\s\S]*?margin-top: auto;/,
+  );
+});
+
+test('homepage dashboard adapts to constrained windows', () => {
+  assert.match(source, /container-name: rarbg-home;/);
+  assert.match(source, /@container rarbg-home \(max-width: 1500px\)/);
+  assert.match(source, /@media \(max-width: 1699\.98px\)/);
+  assert.match(
+    source,
+    /@media \(max-width: 1100px\) \{[\s\S]*?\.leftNav \{\s*display: none !important;/,
+  );
+  assert.match(
+    source,
+    /@media \(max-width: 575\.98px\) \{[\s\S]*?\.tm-rarbg-home-actions \{\s*grid-template-columns: minmax\(0, 1fr\);/,
+  );
+  assert.match(
+    source,
+    /@media \(max-width: 575\.98px\) \{[\s\S]*?table\.dataTable \{\s*table-layout: fixed !important;/,
+  );
+  assert.match(source, /classList\.add\('tm-rarbg-home-actions'\)/);
+  assert.match(
+    source,
+    /\.tm-rarbg-home-actions \.btn-small \{[\s\S]*?width: 100%;[\s\S]*?height: 100%;/,
+  );
+  assert.match(
+    source,
+    /@media \(max-width: 991\.98px\) \{[\s\S]*?\.tm-rarbg-home-category:not\(\.tm-rarbg-home-category-wide\)[\s\S]*?table\.dataTable \{\s*min-width: 0;/,
+  );
+});
+
+test('search controls use available width and expose clear states', () => {
+  assert.match(
+    source,
+    /\.tm-rarbg-search-section \{[\s\S]*?display: grid !important;[\s\S]*?grid-template-columns: minmax\(0, 1fr\) auto;/,
+  );
+  assert.match(
+    source,
+    /\.searchSec \{[\s\S]*?width: 100% !important;[\s\S]*?max-width: none !important;/,
+  );
+  assert.match(source, /\.tm-rarbg-adult-control/);
+  assert.match(source, /adultToggle\?\.setAttribute\('aria-label', 'Show XXX content'\)/);
+  assert.match(source, /isOpen \? 'Hide thumbnails' : 'Show thumbnails'/);
+  assert.match(
+    source,
+    /#filterOption \{[\s\S]*?width: 100% !important;[\s\S]*?max-width: none !important;[\s\S]*?grid-template-columns: repeat\(4, minmax\(0, 1fr\)\) !important;/,
+  );
+  assert.match(source, /#filterOption > div:nth-last-child\(-n \+ 2\) \{\s*grid-column: span 2;/);
+  assert.match(source, /container-name: rarbg-search;/);
+  assert.match(source, /@container rarbg-search \(min-width: 1400px\)/);
+  assert.match(source, /@container rarbg-search \(max-width: 700px\)/);
+  assert.match(source, /@container rarbg-search \(max-width: 360px\)/);
+  assert.match(source, /display: contents !important;/);
+  assert.match(source, /isOpen \? 'Hide filters' : 'Filters'/);
+  assert.match(source, /resetButton\.textContent = 'Clear filters'/);
+  assert.match(source, /searchInput\.setAttribute\('aria-label', 'Search by title or IMDb ID'\)/);
+  assert.match(source, /#filterOption > div:nth-child\(-n \+ 8\):has\(input:checked\)/);
+});
+
+test('cryptic content-type table headings are labelled clearly', () => {
+  assert.match(source, /heading\.textContent\.trim\(\)\.toUpperCase\(\) !== 'C'/);
+  assert.match(source, /heading\.textContent = 'Type'/);
+  assert.match(source, /heading\.setAttribute\('aria-label', 'Content type'\)/);
+  assert.match(source, /labelContentTypeColumns\(document\)/);
 });
