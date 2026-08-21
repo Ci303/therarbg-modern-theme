@@ -12,17 +12,57 @@ A local Tampermonkey userscript that gives TheRARBG a cleaner, responsive dark i
 - Adds a **Show extras** control for secondary carousel, tag and recent-search sections.
 - Uses no external dependencies or privileged userscript APIs.
 
-## Installation
+## Requirements
+
+- A current desktop browser supported by [Tampermonkey](https://www.tampermonkey.net/).
+- The Tampermonkey extension installed and enabled.
+
+## Install with Tampermonkey
 
 1. Install [Tampermonkey](https://www.tampermonkey.net/) in your browser.
-2. Open [therarbg-modern-theme.user.js](https://raw.githubusercontent.com/Ci303/therarbg-modern-theme/main/therarbg-modern-theme.user.js).
-3. Confirm the installation in Tampermonkey.
+2. Open the [userscript installation link](https://raw.githubusercontent.com/Ci303/therarbg-modern-theme/main/therarbg-modern-theme.user.js).
+3. Tampermonkey should open an installation page. Review the script details and select **Install**.
+4. Visit a supported TheRARBG page or reload one that is already open.
 
-The script runs only on `https://therarbg.com/*`.
+If the installation page does not open, create a new script in the Tampermonkey dashboard, replace the template with the complete contents of [`therarbg-modern-theme.user.js`](therarbg-modern-theme.user.js), then save it.
 
-## Palette selection
+## Supported pages
 
-Use the **Colour** selector in the site's top navigation. Your selection is stored locally in the browser and restored on later visits.
+The script runs on:
+
+- `https://therarbg.com/`
+- `https://therarbg.com/get-posts...` results and category pages
+- `https://therarbg.com/catalog...` catalogue pages
+
+It deliberately does not run on unrelated TheRARBG routes.
+
+## How to use it
+
+1. Open a supported page while the script is enabled in Tampermonkey.
+2. Use the **Colour** selector in the top navigation to choose one of the 12 palettes.
+3. On home and results pages, use **Show extras** to reveal secondary carousels, tags and recent searches; select **Hide extras** to collapse them again.
+
+The selected colour and extras setting are stored locally for later visits. To restore the default appearance, select **Midnight** and **Hide extras**.
+
+## Updates
+
+Tampermonkey can check the repository automatically using the update addresses in the userscript metadata. You can also reinstall from the installation link above to obtain the current version.
+
+## Disable or remove
+
+Open the Tampermonkey dashboard and either switch off **TheRARBG Modern Results Theme** temporarily or delete it. Reload TheRARBG afterwards; the website itself is not modified.
+
+## Troubleshooting
+
+- Confirm the script is enabled in the Tampermonkey dashboard.
+- Confirm the address starts with one of the supported routes above.
+- Reload the page after installing or updating the script.
+- If another style extension overrides the theme, temporarily disable that extension to identify the conflict.
+- Report reproducible problems through [GitHub Issues](https://github.com/Ci303/therarbg-modern-theme/issues), including the page address, browser, Tampermonkey version and a screenshot where useful.
+
+## Permissions and privacy
+
+The script requests no privileged Tampermonkey permissions. It does not make network requests, load remote code, read credentials or transmit usage data. Its only stored values are the selected palette and whether extras are expanded.
 
 ## Scope and safety
 
