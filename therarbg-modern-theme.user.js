@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TheRARBG Modern Results Theme
 // @namespace    local.therarbg.theme
-// @version      0.1.5
+// @version      0.1.6
 // @description  A cleaner, page-aware dark theme for TheRARBG.
 // @author       Citizen
 // @homepageURL  https://github.com/Ci303/therarbg-modern-theme
@@ -22,6 +22,7 @@
   const ROOT_CLASS = 'tm-rarbg-theme';
   const SHOW_EXTRAS_CLASS = 'tm-rarbg-show-extras';
   const CATEGORY_PAGE_CLASS = 'tm-rarbg-category-page';
+  const HOME_PAGE_CLASS = 'tm-rarbg-home-page';
   const EXTRAS_STORAGE_KEY = 'tmRarbgShowExtras';
   const PALETTE_STORAGE_KEY = 'tmRarbgPalette';
   const DEFAULT_PALETTE = 'midnight';
@@ -50,6 +51,7 @@
   const isToolbarPage = isHomePage || isResultsPage;
 
   root.classList.add(ROOT_CLASS);
+  root.classList.toggle(HOME_PAGE_CLASS, isHomePage);
 
   function normalisePalette(value) {
     return PALETTES.has(value) ? value : DEFAULT_PALETTE;
@@ -712,6 +714,15 @@
       line-height: 1.45;
     }
 
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} body.postBody.container {
+      max-width: 2400px !important;
+    }
+
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .postCont {
+      container-name: rarbg-home;
+      container-type: inline-size;
+    }
+
     html.${ROOT_CLASS} body.postBody.container > div[style*="bknd_body.jpg"] {
       background: var(--tm-page-background) !important;
     }
@@ -1018,11 +1029,17 @@
 
     /* Main search */
     html.${ROOT_CLASS} .tm-rarbg-search-section {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
       margin: 0 0 14px !important;
       padding: 14px !important;
+      align-items: start;
       border: 1px solid var(--tm-border);
       border-radius: 12px;
       background: var(--tm-panel-raised);
+      container-name: rarbg-search;
+      container-type: inline-size;
     }
 
     html.${ROOT_CLASS} .tm-rarbg-search-section > .row {
@@ -1032,27 +1049,92 @@
     }
 
     html.${ROOT_CLASS} .searchSec {
-      width: min(760px, 100%) !important;
-      max-width: 760px !important;
-      height: auto !important;
-      margin: 0 auto !important;
+      display: contents !important;
+    }
+
+    html.${ROOT_CLASS} .tm-rarbg-adult-control {
+      display: flex !important;
+      width: auto !important;
+      margin: 0 !important;
+      grid-column: 2;
+      grid-row: 1;
+      justify-content: flex-end;
+    }
+
+    html.${ROOT_CLASS} .tm-rarbg-adult-control .form-check {
+      margin: 0 !important;
       padding: 0 !important;
-      background: transparent !important;
+    }
+
+    html.${ROOT_CLASS} .tm-rarbg-adult-control label[for="adultContentToggle"] {
+      display: flex;
+      min-height: 42px;
+      margin: 0 !important;
+      padding: 7px 10px;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--tm-border-strong);
+      border-radius: 9px;
+      color: var(--tm-text-soft);
+      background: var(--tm-input);
+      font-size: 12px;
+      font-weight: 750;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    html.${ROOT_CLASS} .tm-rarbg-adult-control label[for="adultContentToggle"]::before {
+      content: "18+";
+      padding: 3px 6px;
+      border-radius: 999px;
+      color: var(--tm-text-on-accent);
+      background: var(--tm-danger);
+      font-size: 10px;
+      line-height: 1;
+    }
+
+    html.${ROOT_CLASS} .tm-rarbg-adult-control label[for="adultContentToggle"]::after {
+      content: "Hidden";
+      order: 2;
+      color: var(--tm-muted);
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+
+    html.${ROOT_CLASS}
+      .tm-rarbg-adult-control
+      label[for="adultContentToggle"]:has(#adultContentToggle:checked) {
+      border-color: var(--tm-accent);
+      background: var(--tm-accent-soft);
+    }
+
+    html.${ROOT_CLASS}
+      .tm-rarbg-adult-control
+      label[for="adultContentToggle"]:has(#adultContentToggle:checked)::after {
+      content: "Visible";
+      color: var(--tm-focus);
+    }
+
+    html.${ROOT_CLASS} .tm-rarbg-adult-control #adultContentToggle {
+      margin: 0 !important;
+      order: 3;
+      float: none !important;
+      cursor: pointer;
     }
 
     html.${ROOT_CLASS} #form_search {
-      width: 100% !important;
-      height: auto !important;
-      margin: 0 !important;
+      display: contents;
     }
 
     html.${ROOT_CLASS} #form_search .search {
       display: flex !important;
       width: 100% !important;
       height: auto !important;
-      margin: 0 0 9px !important;
+      margin: 0 !important;
       align-items: stretch;
       gap: 7px;
+      grid-column: 1;
+      grid-row: 1;
     }
 
     html.${ROOT_CLASS} #keywords,
@@ -1117,27 +1199,123 @@
     html.${ROOT_CLASS} #form_search > div:last-of-type {
       display: flex;
       align-items: center;
+      justify-content: flex-end;
       gap: 8px;
     }
 
     html.${ROOT_CLASS} #form_search button[type="reset"] {
       width: auto !important;
       padding: 0 13px !important;
+      color: var(--tm-muted) !important;
+      background: transparent !important;
+    }
+
+    html.${ROOT_CLASS} #filterBtn {
+      width: auto !important;
+      min-width: 78px;
+      padding: 0 13px !important;
     }
 
     html.${ROOT_CLASS} #filterOption {
-      margin-top: 10px !important;
+      width: 100% !important;
+      max-width: none !important;
+      min-width: 0;
+      margin: 0 !important;
       padding: 12px !important;
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
       gap: 10px !important;
+      grid-column: 1 / -1;
+      grid-row: 2;
       border: 1px solid var(--tm-border);
       border-radius: 10px;
       background: var(--tm-input) !important;
+    }
+
+    html.${ROOT_CLASS} #filterOption > div:nth-child(-n + 8) {
+      display: flex;
+      min-width: 0;
+      min-height: 40px;
+      padding: 8px 10px;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--tm-border);
+      border-radius: 9px;
+      color: var(--tm-text-soft);
+      background: var(--tm-filter);
+    }
+
+    html.${ROOT_CLASS} #filterOption > div:nth-child(-n + 8):has(input:checked) {
+      border-color: var(--tm-accent);
+      color: var(--tm-text-on-accent);
+      background: var(--tm-accent-soft);
+    }
+
+    html.${ROOT_CLASS} #filterOption > div:nth-child(-n + 8) input {
+      margin: 0;
+      flex: 0 0 auto;
+    }
+
+    html.${ROOT_CLASS} #filterOption > div:nth-child(-n + 8) label {
+      min-width: 0;
+      margin: 0;
+      flex: 1 1 auto;
+      cursor: pointer;
+    }
+
+    html.${ROOT_CLASS} #filterOption > div:nth-child(-n + 8) label a {
+      display: block;
+      color: inherit !important;
+      font-weight: 700;
+    }
+
+    html.${ROOT_CLASS} #filterOption > div:nth-last-child(-n + 2) {
+      grid-column: span 2;
+    }
+
+    @container rarbg-search (min-width: 1400px) {
+      html.${ROOT_CLASS} #filterOption {
+        grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
+      }
+
+      html.${ROOT_CLASS} #filterOption > div:nth-child(9) {
+        grid-column: 3 / span 2;
+      }
+
+      html.${ROOT_CLASS} #filterOption > div:nth-child(10) {
+        grid-column: 5 / span 2;
+      }
+    }
+
+    @container rarbg-search (max-width: 700px) {
+      html.${ROOT_CLASS} #filterOption {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      }
+
+      html.${ROOT_CLASS} #filterOption > div:nth-last-child(-n + 2) {
+        grid-column: span 1;
+      }
+    }
+
+    @container rarbg-search (max-width: 360px) {
+      html.${ROOT_CLASS} #filterOption {
+        grid-template-columns: minmax(0, 1fr) !important;
+      }
     }
 
     html.${ROOT_CLASS} #filterOption label[for="sizeMin"],
     html.${ROOT_CLASS} #filterOption label[for="sizeMax"] {
       display: block !important;
       width: 100%;
+    }
+
+    html.${ROOT_CLASS} #form_search > div:last-of-type {
+      grid-column: 1 / -1;
+      grid-row: 3;
+    }
+
+    html.${ROOT_CLASS} .search-result-pop {
+      grid-column: 1 / -1;
+      grid-row: 4;
     }
 
     html.${ROOT_CLASS} #sizeMin,
@@ -1363,6 +1541,76 @@
     html.${ROOT_CLASS} .dataTables_filter input[type="search"]:focus {
       border-color: var(--tm-accent) !important;
       box-shadow: 0 0 0 3px var(--tm-accent-soft) !important;
+    }
+
+    /* Wide-screen home dashboard */
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 18px;
+      align-items: stretch;
+    }
+
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category {
+      display: flex;
+      min-width: 0;
+      height: 100%;
+      padding: 14px;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--tm-border);
+      border-radius: 13px;
+      background: var(--tm-panel-soft);
+      box-shadow: var(--tm-shadow);
+    }
+
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-actions {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: auto;
+      padding: 12px 0 0 !important;
+    }
+
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-actions > a {
+      display: flex;
+      min-width: 0;
+    }
+
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-actions .btn-small {
+      width: 100%;
+      height: 100%;
+      min-height: 42px;
+      margin: 0 !important;
+      padding: 8px 10px !important;
+      white-space: normal;
+      line-height: 1.25;
+    }
+
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category > h2 {
+      margin: 0 0 10px !important;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category > .row {
+      margin-right: 0 !important;
+      margin-left: 0 !important;
+    }
+
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category .dataTables_wrapper {
+      overflow-x: auto !important;
+    }
+
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category-wide {
+      grid-column: 1 / -1;
+    }
+
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS}
+      .tm-rarbg-home-category:not(.tm-rarbg-home-category-wide)
+      table.dataTable {
+      min-width: 760px;
     }
 
     html.${ROOT_CLASS} table.sortableTable2,
@@ -1715,7 +1963,41 @@
       color: var(--tm-text-subtle) !important;
     }
 
+    @container rarbg-home (max-width: 1500px) {
+      html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category-wide {
+        grid-column: auto;
+      }
+    }
+
+    /* Fallback for browsers without container-query support. */
+    @media (max-width: 1699.98px) {
+      html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category-wide {
+        grid-column: auto;
+      }
+    }
+
     @media (max-width: 1100px) {
+      html.${ROOT_CLASS} .topnav > .row {
+        display: block !important;
+      }
+
+      html.${ROOT_CLASS} .leftNav {
+        display: none !important;
+      }
+
+      html.${ROOT_CLASS} .postCont,
+      html.${ROOT_CLASS} .postContL {
+        width: 100% !important;
+      }
+
       html.${ROOT_CLASS} table.sortableTable2 th:nth-child(4),
       html.${ROOT_CLASS} table.sortableTable2 td:nth-child(4) {
         display: none !important;
@@ -1727,7 +2009,65 @@
       }
     }
 
+    @media (max-width: 575.98px) {
+      html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category {
+        padding: 10px;
+      }
+
+      html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-actions {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table.dataTable {
+        table-layout: fixed !important;
+      }
+
+      html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table.dataTable th:nth-child(6),
+      html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table.dataTable td:nth-child(6) {
+        display: none !important;
+      }
+
+      html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table.dataTable th:nth-child(2),
+      html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table.dataTable td:nth-child(2) {
+        width: auto !important;
+      }
+
+      html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table.dataTable th:nth-child(7),
+      html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table.dataTable td:nth-child(7),
+      html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table.dataTable th:nth-child(8),
+      html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table.dataTable td:nth-child(8) {
+        width: 42px !important;
+      }
+    }
+
     @media (max-width: 991.98px) {
+      html.${ROOT_CLASS} .tm-rarbg-search-section {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      html.${ROOT_CLASS} #form_search .search {
+        grid-column: 1;
+        grid-row: 2;
+      }
+
+      html.${ROOT_CLASS} .tm-rarbg-adult-control {
+        width: 100% !important;
+        grid-column: 1;
+        grid-row: 1;
+      }
+
+      html.${ROOT_CLASS} #filterOption {
+        grid-row: 3;
+      }
+
+      html.${ROOT_CLASS} #form_search > div:last-of-type {
+        grid-row: 4;
+      }
+
+      html.${ROOT_CLASS} .search-result-pop {
+        grid-row: 5;
+      }
+
       html.${ROOT_CLASS} table.sortableTable2 .hideCell,
       html.${ROOT_CLASS} table.sortableTable .hideCell {
         display: none !important;
@@ -1735,6 +2075,12 @@
 
       html.${ROOT_CLASS} table.sortableTable2,
       html.${ROOT_CLASS} table.dataTable {
+        min-width: 0;
+      }
+
+      html.${ROOT_CLASS}.${HOME_PAGE_CLASS}
+        .tm-rarbg-home-category:not(.tm-rarbg-home-category-wide)
+        table.dataTable {
         min-width: 0;
       }
 
@@ -1997,6 +2343,10 @@
 
     postContainer.querySelector('#form_search')?.closest('.row')?.classList.add('tm-rarbg-search-section');
 
+    const adultToggle = postContainer.querySelector('#adultContentToggle');
+    adultToggle?.closest('.row')?.classList.add('tm-rarbg-adult-control');
+    adultToggle?.setAttribute('aria-label', 'Show XXX content');
+
     const table = postContainer.querySelector('table.sortableTable2');
     const resultsRow = table?.closest('.row.p-1');
     resultsRow?.classList.add('tm-rarbg-results-row');
@@ -2032,7 +2382,48 @@
     }
   }
 
+  const HOME_SECTION_LAYOUT = [
+    ['.isMovies', 'movies'],
+    ['.isDocumentaries', 'documentaries'],
+    ['.isTV', 'tv'],
+    ['.isAnime', 'anime'],
+    ['.isGames', 'games'],
+    ['.isApps', 'apps'],
+    ['.isMusic', 'music'],
+    ['.isBooks', 'books'],
+    ['.isXXX', 'xxx'],
+  ];
+
+  function arrangeHomeSections(postContainer) {
+    if (!isHomePage || postContainer.querySelector('.tm-rarbg-home-grid')) return;
+
+    const sections = HOME_SECTION_LAYOUT.map(([selector, name]) => ({
+      element: postContainer.querySelector(selector),
+      name,
+    })).filter(({ element }) => element);
+
+    if (sections.length === 0) return;
+
+    const grid = makeElement('div', 'tm-rarbg-home-grid');
+    grid.setAttribute('aria-label', 'Top torrents by category');
+    sections[0].element.before(grid);
+
+    for (const { element, name } of sections) {
+      element.classList.add('tm-rarbg-home-category', `tm-rarbg-home-category-${name}`);
+      element
+        .querySelector(':scope > .text-start:last-child')
+        ?.classList.add('tm-rarbg-home-actions');
+      if (name === 'xxx') element.classList.add('tm-rarbg-home-category-wide');
+      grid.append(element);
+    }
+  }
+
   function labelSearchControls(container) {
+    const searchInput = container.querySelector('#keywords');
+    if (searchInput && !searchInput.hasAttribute('aria-label')) {
+      searchInput.setAttribute('aria-label', 'Search by title or IMDb ID');
+    }
+
     const searchButton = container.querySelector('#form_search .searchButton');
     if (searchButton && !searchButton.hasAttribute('aria-label')) {
       searchButton.setAttribute('aria-label', 'Search');
@@ -2045,13 +2436,31 @@
     filterButton.setAttribute('aria-controls', 'filterOption');
 
     const updateExpandedState = () => {
-      filterButton.setAttribute('aria-expanded', String(filterButton.classList.contains('open')));
+      const isOpen = filterButton.classList.contains('open');
+      filterButton.setAttribute('aria-expanded', String(isOpen));
+      filterButton.textContent = isOpen ? 'Hide filters' : 'Filters';
     };
 
     updateExpandedState();
     window.setTimeout(updateExpandedState, 0);
     filterButton.addEventListener('click', () => {
       window.requestAnimationFrame(updateExpandedState);
+    });
+
+    const resetButton = container.querySelector('#form_search button[type="reset"]');
+    if (resetButton) {
+      resetButton.textContent = 'Clear filters';
+      resetButton.setAttribute('aria-label', 'Clear search filters');
+    }
+  }
+
+  function labelContentTypeColumns(container) {
+    container.querySelectorAll('table.sortableTable2 thead th:first-child').forEach((heading) => {
+      if (heading.textContent.trim().toUpperCase() !== 'C') return;
+
+      heading.textContent = 'Type';
+      heading.setAttribute('title', 'Content type');
+      heading.setAttribute('aria-label', 'Content type');
     });
   }
 
@@ -2077,7 +2486,7 @@
 
     const updateExtrasButton = () => {
       const isOpen = root.classList.contains(SHOW_EXTRAS_CLASS);
-      extrasButton.textContent = isOpen ? 'Hide extras' : 'Show extras';
+      extrasButton.textContent = isOpen ? 'Hide thumbnails' : 'Show thumbnails';
       extrasButton.setAttribute('aria-expanded', String(isOpen));
     };
 
@@ -2141,6 +2550,7 @@
 
     addPaletteControl();
     labelSearchControls(document);
+    labelContentTypeColumns(document);
 
     if (postContainer && isCatalogPage) markCatalogPage(postContainer);
 
@@ -2148,6 +2558,8 @@
       const extraSections = markSections(postContainer);
       addToolbar(postContainer, extraSections);
     }
+
+    if (postContainer && isHomePage) arrangeHomeSections(postContainer);
 
     hideKnownClickCatchers();
 

@@ -5,11 +5,12 @@ A local Tampermonkey userscript that gives TheRARBG a cleaner, responsive dark i
 ## Features
 
 - Restyles the home, results and catalogue pages.
+- Arranges the homepage category lists into a responsive wide-screen dashboard: Movies with Documentaries, TV with Anime, Games with Apps, Music with Books, and a full-width XXX section at the bottom.
 - Includes 12 persistent dark palettes: Midnight, Black, Slate, Blue, Teal, Emerald, Olive, Amber, Crimson, Magenta, Purple and Espresso.
 - Improves torrent-list text size, spacing, contrast and responsive behaviour.
 - Restyles navigation, search controls, filters, catalogue tags and pagination.
 - Corrects the appearance of malformed server-rendered pagination links.
-- Adds a **Show extras** control for secondary carousel, tag and recent-search sections.
+- Adds a **Show thumbnails** control for secondary carousel, tag and recent-search sections.
 - Uses no external dependencies or privileged userscript APIs.
 
 ## Requirements
@@ -40,15 +41,15 @@ It deliberately does not run on unrelated TheRARBG routes.
 
 1. Open a supported page while the script is enabled in Tampermonkey.
 2. Use the **Colour** selector in the top navigation to choose one of the 12 palettes.
-3. On home and results pages, use **Show extras** to reveal secondary carousels, tags and recent searches; select **Hide extras** to collapse them again.
+3. On home and results pages, use **Show thumbnails** to reveal secondary carousels, tags and recent searches; select **Hide thumbnails** to collapse them again.
 
-The selected colour and extras setting are stored locally for later visits. To restore the default appearance, select **Midnight** and **Hide extras**.
+The selected colour and thumbnail setting are stored locally for later visits. To restore the default appearance, select **Midnight** and **Hide thumbnails**.
 
 ## Updates
 
 Tampermonkey can check the repository automatically using the update addresses in the userscript metadata. You can also reinstall from the installation link above to obtain the current version.
 
-If you installed v0.1.4 manually, open the installation link once and confirm the update to v0.1.5. Earlier versions did not contain the repository update address, so they cannot discover this release automatically. Future versions can then be found through Tampermonkey's update checks.
+If you installed v0.1.4 manually, open the installation link once and confirm the update to the current version. Earlier versions did not contain the repository update address, so they cannot discover later releases automatically. Future versions can then be found through Tampermonkey's update checks.
 
 ## Disable or remove
 
