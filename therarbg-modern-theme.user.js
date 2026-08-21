@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TheRARBG Modern Results Theme
 // @namespace    local.therarbg.theme
-// @version      0.1.6
+// @version      0.1.7
 // @description  A cleaner, page-aware dark theme for TheRARBG.
 // @author       Citizen
 // @homepageURL  https://github.com/Ci303/therarbg-modern-theme
@@ -1250,6 +1250,10 @@
       background: var(--tm-accent-soft);
     }
 
+    html.${ROOT_CLASS} #filterOption > .tm-rarbg-adult-filter[hidden] {
+      display: none !important;
+    }
+
     html.${ROOT_CLASS} #filterOption > div:nth-child(-n + 8) input {
       margin: 0;
       flex: 0 0 auto;
@@ -2347,6 +2351,38 @@
     adultToggle?.closest('.row')?.classList.add('tm-rarbg-adult-control');
     adultToggle?.setAttribute('aria-label', 'Show XXX content');
 
+    const adultFilterCheckbox = postContainer.querySelector('#radXXX');
+    const adultFilter = adultFilterCheckbox?.closest('#filterOption > div');
+
+    if (adultToggle && adultFilterCheckbox && adultFilter) {
+      adultFilter.classList.add('tm-rarbg-adult-filter');
+
+      const synchroniseAdultFilter = () => {
+        const isAdultContentVisible = adultToggle.checked;
+        adultFilter.hidden = !isAdultContentVisible;
+        adultFilter.setAttribute('aria-hidden', String(!isAdultContentVisible));
+        adultFilterCheckbox.disabled = !isAdultContentVisible;
+
+        if (isAdultContentVisible) return;
+
+        adultFilterCheckbox.checked = false;
+
+        try {
+          const savedFilters = JSON.parse(localStorage.getItem('checkedSearches'));
+          if (savedFilters && typeof savedFilters === 'object' && savedFilters.xxx !== 'false') {
+            savedFilters.xxx = 'false';
+            localStorage.setItem('checkedSearches', JSON.stringify(savedFilters));
+          }
+        } catch {
+          // Invalid or unavailable site storage must not stop the theme.
+        }
+      };
+
+      synchroniseAdultFilter();
+      window.setTimeout(synchroniseAdultFilter, 0);
+      adultToggle.addEventListener('change', synchroniseAdultFilter);
+    }
+
     const table = postContainer.querySelector('table.sortableTable2');
     const resultsRow = table?.closest('.row.p-1');
     resultsRow?.classList.add('tm-rarbg-results-row');
@@ -2484,6 +2520,17 @@
     extrasButton.type = 'button';
     extrasButton.setAttribute('aria-controls', extraSections.map((section) => section.id).join(' '));
 
+    const refreshThumbnailCarousel = () => {
+      const slider = postContainer.querySelector('#mySlides1.slick-initialized');
+      const pageJQuery = window.jQuery;
+      if (!slider || typeof pageJQuery !== 'function') return;
+
+      window.requestAnimationFrame(() => {
+        const carousel = pageJQuery(slider);
+        if (typeof carousel.slick === 'function') carousel.slick('setPosition');
+      });
+    };
+
     const updateExtrasButton = () => {
       const isOpen = root.classList.contains(SHOW_EXTRAS_CLASS);
       extrasButton.textContent = isOpen ? 'Hide thumbnails' : 'Show thumbnails';
@@ -2498,6 +2545,7 @@
         // See the storage note near initialisation.
       }
       updateExtrasButton();
+      if (isOpen) refreshThumbnailCarousel();
     });
 
     updateExtrasButton();

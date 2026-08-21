@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.7 - 2026-08-21
+
+- Hide, disable and clear the XXX search filter whenever the global XXX content switch is off.
+- Clear the stored XXX filter state without changing any other saved search filters.
+- Recalculate the poster carousel immediately when thumbnails are revealed after hidden initialisation.
+
 ## 0.1.6 - 2026-08-21
 
 - Use the available width on the homepage for a responsive two-column category dashboard.
