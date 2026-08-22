@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.2.0 - 2026-08-22
+
+- Standardise pagination buttons and their bottom spacing across every themed route, including poster-card listings.
+- Restyle Movie and TV catalogue result pages with themed filters and responsive contained result cards.
+- Increase text contrast on catalogue genre and Movie/TV selector buttons.
+- Capitalise catalogue genre labels and expand hyphenated names for display.
+- Give the active Movie/TV catalogue selector a distinct high-contrast state.
+- Apply the shared palette, search controls, footer and responsive tile styling to `/main-page-list`.
+- Theme Hot Picks, Top Ten, Latest Trailers and Box Office using shared dashboard or poster-card treatments.
+- Remove the Original RARBG tile from `/main-page-list`.
+- Restore and clearly label the compact Type indicator column on homepage torrent tables.
+- Remove the redundant homepage Category column and result-count line.
+- Apply equal visible padding around each homepage table.
+- Singularise Movie, Documentary, Game, App and Book homepage section headings.
+- Style `/trending` routes like `/get-posts` results pages.
+- Keep hovered cover previews above sticky table headers without clipping.
+- Keep dashboard filenames to one line with ellipsis and abbreviate hours/minutes.
+- Constrain dashboard tables to their cards while the File column uses the remaining width.
+- Centre Type, Added, Time, Size, Se. and Le. dashboard columns.
+- Apply consistent padding around `/get-posts` and trending results tables.
+- Add the missing inset inside the generated DataTables results wrapper.
+- Centre results metadata columns and abbreviate their Time Since values.
+- Abbreviate week, month and year units across every Time or Time Since column.
+- Abbreviate day values, expand S./L. to SE./LE. and space sorting arrows across all tables.
+- Remove leading Font Awesome and literal down arrows without suppressing DataTables sorting indicators.
+
 ## 0.1.9 - 2026-08-22
 
 - Collapse the Clear filters action and its empty row until the filter panel is opened.

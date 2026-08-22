@@ -14,11 +14,17 @@ function metadataValues(name) {
 
 test('userscript metadata is safe and release-ready', () => {
   assert.deepEqual(metadataValues('name'), ['TheRARBG Tampermonkey Theme']);
-  assert.deepEqual(metadataValues('version'), ['0.1.9']);
+  assert.deepEqual(metadataValues('version'), ['0.2.0']);
   assert.deepEqual(metadataValues('grant'), ['none']);
   assert.deepEqual(metadataValues('match'), [
     'https://therarbg.com/',
     'https://therarbg.com/get-posts*',
+    'https://therarbg.com/trending*',
+    'https://therarbg.com/main-page-list*',
+    'https://therarbg.com/hot-pick-post/*',
+    'https://therarbg.com/top-ten-post/*',
+    'https://therarbg.com/latest-trailer*',
+    'https://therarbg.com/box-office*',
     'https://therarbg.com/catalog*',
     'https://therarbg.com/post-detail/*',
   ]);
@@ -76,7 +82,7 @@ test('homepage categories use the intended dashboard order', () => {
   const layoutBlock = source.match(/const HOME_SECTION_LAYOUT = \[([\s\S]*?)\n  \];/);
   assert.ok(layoutBlock, 'HOME_SECTION_LAYOUT was not found');
 
-  const selectors = [...layoutBlock[1].matchAll(/\['([^']+)',\s*'[^']+'\]/g)].map(
+  const selectors = [...layoutBlock[1].matchAll(/\['([^']+)',\s*'[^']+',\s*'[^']+'\]/g)].map(
     ([, selector]) => selector,
   );
 
@@ -92,6 +98,145 @@ test('homepage categories use the intended dashboard order', () => {
     '.isXXX',
   ]);
   assert.match(source, /if \(name === 'xxx'\) element\.classList\.add\('tm-rarbg-home-category-wide'\)/);
+});
+
+test('selected homepage category headings use singular nouns', () => {
+  for (const [selector, name, label] of [
+    ['.isMovies', 'movies', 'Movie'],
+    ['.isDocumentaries', 'documentaries', 'Documentary'],
+    ['.isGames', 'games', 'Game'],
+    ['.isApps', 'apps', 'App'],
+    ['.isBooks', 'books', 'Book'],
+  ]) {
+    assert.match(source, new RegExp(`\\['${selector.replace('.', '\\.')}', '${name}', '${label}'\\]`));
+  }
+  assert.match(source, /heading\.textContent = `Top \$\{singularLabel\} Torrents`/);
+});
+
+test('trending routes receive get-posts results theming', () => {
+  assert.match(source, /@match\s+https:\/\/therarbg\.com\/trending\*/);
+  assert.match(source, /isTrendingPage;/);
+  assert.match(source, /root\.classList\.toggle\(HOME_PAGE_CLASS, isHomePage \|\| isTopTenPage\)/);
+  assert.match(
+    source,
+    /isTrendingPage \? 'table\.sortableTable, table\.dataTable' : 'table\.sortableTable2'/,
+  );
+  assert.match(source, /table\?\.closest\(isTrendingPage \? '\.row' : '\.row\.p-1'\)/);
+  assert.doesNotMatch(source, /isTrendingDetailPage/);
+});
+
+test('compact main-page navigation receives isolated responsive theming', () => {
+  assert.match(source, /@match\s+https:\/\/therarbg\.com\/main-page-list\*/);
+  assert.match(source, /const isMainPageList = normalisedPath === '\/main-page-list'/);
+  assert.match(source, /root\.classList\.toggle\(MAIN_PAGE_LIST_CLASS, isMainPageList\)/);
+  assert.match(source, /function markMainPageList\(postContainer\)/);
+  assert.match(source, /postContainer\.querySelector\('\.tileCont'\)\?\.classList\.add\('tm-rarbg-main-list-tiles'\)/);
+  assert.match(
+    source,
+    /\.tm-rarbg-main-list-tiles \{[\s\S]*?grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);/,
+  );
+  assert.match(source, /'\.postContUp, \.tm-rarbg-main-list-header'/);
+  assert.match(
+    source,
+    /querySelector\('\.tile a\[href="\/get-posts\/user:ORARBG\/"\]'\)[\s\S]*?\.remove\(\)/,
+  );
+});
+
+test('movie and TV catalogue listings use contained responsive result cards', () => {
+  assert.match(source, /normalisedPath === '\/catalog\/movie'/);
+  assert.match(source, /normalisedPath\.startsWith\('\/catalog\/tv\/'\)/);
+  assert.match(source, /root\.classList\.toggle\(CATALOG_LIST_PAGE_CLASS, isCatalogListPage\)/);
+  assert.match(source, /function markCatalogListPage\(postContainer\)/);
+  assert.match(source, /row\.classList\.add\('tm-rarbg-catalog-result'\)/);
+  assert.match(
+    source,
+    /\.tm-rarbg-catalog-result \{[\s\S]*?grid-template-columns: minmax\(150px, 190px\) minmax\(0, 1fr\);/,
+  );
+  assert.match(
+    source,
+    /\.tm-rarbg-catalog-result table\.table \{[\s\S]*?min-width: 720px;/,
+  );
+  assert.match(
+    source,
+    /a\.btn-primary\.buttonalink \{[\s\S]*?color: var\(--tm-text-on-accent\) !important;[\s\S]*?font-weight: 700;/,
+  );
+  for (const [sourceLabel, displayLabel] of [
+    ['game-show', 'Game Show'],
+    ['reality-tv', 'Reality TV'],
+    ['sci-fi', 'Sci-Fi'],
+    ['talk-show', 'Talk Show'],
+    ['film-noir', 'Film Noir'],
+  ]) {
+    assert.match(source, new RegExp(`'${sourceLabel}': '${displayLabel}'`));
+  }
+  assert.match(source, /\.replace\(\/\-\/g, ' '\)/);
+  assert.match(source, /const activeCatalogKind = normalisedPath\.startsWith\('\/catalog\/tv'\) \? 'tv' : 'movie'/);
+  assert.match(source, /link\.classList\.toggle\('tm-rarbg-catalog-kind-active', isActive\)/);
+  assert.match(source, /if \(isActive\) link\.setAttribute\('aria-current', 'page'\)/);
+  assert.match(
+    source,
+    /\.tm-rarbg-catalog-kind-active,[\s\S]*?box-shadow: inset 0 -3px 0 var\(--tm-focus\), 0 0 0 2px var\(--tm-accent-soft\) !important;/,
+  );
+});
+
+test('feature listing routes share themed poster cards and video modals', () => {
+  for (const route of ['hot-pick-post/\\*', 'latest-trailer\\*', 'box-office\\*']) {
+    assert.match(source, new RegExp(`@match\\s+https:\\/\\/therarbg\\.com\\/${route}`));
+  }
+  assert.match(source, /root\.classList\.toggle\(FEATURE_LIST_PAGE_CLASS, isFeatureListPage\)/);
+  assert.match(source, /function markFeatureListPage\(postContainer\)/);
+  assert.match(source, /card\.classList\.add\('tm-rarbg-feature-card'\)/);
+  assert.match(
+    source,
+    /\.tm-rarbg-feature-card \{[\s\S]*?background: var\(--tm-panel-raised\) !important;/,
+  );
+  assert.match(source, /\.\$\{FEATURE_LIST_PAGE_CLASS\} \.modal-content \{/);
+});
+
+test('top-ten routes reuse the responsive homepage dashboard', () => {
+  assert.match(source, /@match\s+https:\/\/therarbg\.com\/top-ten-post\/\*/);
+  assert.match(source, /root\.classList\.toggle\(HOME_PAGE_CLASS, isHomePage \|\| isTopTenPage\)/);
+  assert.match(source, /const isToolbarPage = isHomePage \|\| isResultsPage \|\| isTopTenPage/);
+  assert.match(source, /if \(postContainer && \(isHomePage \|\| isTopTenPage\)\)/);
+});
+
+test('results tables have consistent container padding', () => {
+  assert.match(
+    source,
+    /\.tm-rarbg-results-row \{[\s\S]*?box-sizing: border-box;[\s\S]*?padding: 12px !important;[\s\S]*?background: var\(--tm-panel\);/,
+  );
+  assert.match(
+    source,
+    /\.tm-rarbg-results-row > \.dataTables_wrapper \{[\s\S]*?box-sizing: border-box;[\s\S]*?padding: 12px !important;/,
+  );
+});
+
+test('pagination styling is consistent across every themed page', () => {
+  assert.match(
+    source,
+    /html\.\$\{ROOT_CLASS\} \.pagination \{[\s\S]*?display: flex !important;[\s\S]*?padding: 0 0 16px !important;[\s\S]*?gap: 6px;/,
+  );
+  assert.match(
+    source,
+    /html\.\$\{ROOT_CLASS\} \.pagination \.page-item > \.page-link,[\s\S]*?border-radius: 8px !important;/,
+  );
+  assert.match(
+    source,
+    /html\.\$\{ROOT_CLASS\} \.pagination \.page-item\.active > \.page-link,[\s\S]*?background: var\(--tm-accent-strong\) !important;/,
+  );
+  assert.match(source, /function markPagination\(container\)/);
+  assert.match(source, /markPagination\(document\)/);
+});
+
+test('results metadata columns are centred while File remains left-aligned', () => {
+  assert.match(
+    source,
+    /\.tm-rarbg-results-row table th:nth-child\(1\),[\s\S]*?\.tm-rarbg-results-row table th:nth-child\(8\) \{[\s\S]*?padding: 12px 16px !important;[\s\S]*?text-align: center !important;/,
+  );
+  assert.match(
+    source,
+    /\.tm-rarbg-results-row table td:nth-child\(1\),[\s\S]*?\.tm-rarbg-results-row table td:nth-child\(8\) \{\s*text-align: center !important;/,
+  );
 });
 
 test('paired homepage cards stretch to equal row heights', () => {
@@ -172,21 +317,128 @@ test('search controls use available width and expose clear states', () => {
   assert.match(source, /#filterOption > div:nth-child\(-n \+ 8\):has\(input:checked\)/);
 });
 
-test('type indicator columns are hidden after DataTables initialises', () => {
-  assert.match(source, /heading\.textContent\.trim\(\)\.toUpperCase\(\) !== 'C'/);
-  assert.match(source, /table\.classList\.add\('tm-rarbg-hide-type-column'\)/);
-  assert.match(source, /hideTypeIndicatorColumns\(document\)/);
+test('type indicator columns remain visible and are labelled clearly', () => {
+  assert.doesNotMatch(source, /tm-rarbg-hide-type-column/);
+  assert.doesNotMatch(source, /hideTypeIndicatorColumns/);
+  assert.match(source, /C: 'Type'/);
+  assert.match(source, /heading\.setAttribute\('aria-label', 'Torrent type'\)/);
+  assert.match(source, /labelTableColumns\(document\)/);
+});
+
+test('literal down arrows are removed while DataTables sorting indicators retain spacing', () => {
+  assert.match(source, /'S\.': 'SE\.'/);
+  assert.match(source, /'L\.': 'LE\.'/);
+  assert.match(source, /originalLabel\.replace\(\/\^↓\\s\*\/, ''\)/);
+  assert.match(source, /if \(label !== originalLabel\) heading\.textContent = label/);
+  assert.match(source, /hideKnownClickCatchers\(\);\s*labelTableColumns\(document\);/);
   assert.match(
     source,
-    /window\.addEventListener\('load', \(\) => hideTypeIndicatorColumns\(document\), \{ once: true \}\)/,
+    /table\.dataTable thead > tr > th\.sorting_desc \{[\s\S]*?padding-right: 30px !important;/,
+  );
+  assert.match(
+    source,
+    /table\.dataTable thead > tr > th\.sorting_desc::after \{[\s\S]*?right: 8px !important;/,
+  );
+  assert.match(
+    source,
+    /table thead th a > i\.fa-arrow-down \{\s*display: none !important;/,
   );
 });
 
 test('sortable table headings reserve padding for labels and sort controls', () => {
   assert.match(
     source,
-    /table\.sortableTable2 thead th,[\s\S]*?table\.dataTable thead th \{[\s\S]*?padding: 12px 24px 12px 12px !important;/,
+    /table\.sortableTable thead th,[\s\S]*?table\.sortableTable2 thead th,[\s\S]*?table\.dataTable thead th \{[\s\S]*?padding: 12px 24px 12px 12px !important;/,
   );
+});
+
+test('homepage tables have equal visible padding around the DataTables wrapper', () => {
+  assert.match(
+    source,
+    /\.tm-rarbg-home-category \.dataTables_wrapper \{[\s\S]*?padding: 12px !important;[\s\S]*?background: var\(--tm-table\);/,
+  );
+});
+
+test('homepage tables omit their redundant category column', () => {
+  assert.match(
+    source,
+    /\.tm-rarbg-home-category table th:nth-child\(3\),[\s\S]*?\.tm-rarbg-home-category table td:nth-child\(3\) \{\s*display: none !important;/,
+  );
+});
+
+test('hover previews render above sticky table headers without clipping', () => {
+  assert.match(
+    source,
+    /\.tm-rarbg-home-category \.dataTables_wrapper \{[\s\S]*?overflow: visible !important;/,
+  );
+  assert.match(
+    source,
+    /table\.dataTable tbody tr:hover \{[\s\S]*?position: relative;[\s\S]*?z-index: 50;/,
+  );
+  assert.match(
+    source,
+    /table\.dataTable \.wrapper:hover \.tooltip \{[\s\S]*?z-index: 80 !important;/,
+  );
+});
+
+test('dashboard filenames stay on one line with ellipsis without clipping previews', () => {
+  assert.match(
+    source,
+    /td\.cellName \.wrapper \{[\s\S]*?display: flex;[\s\S]*?overflow: visible;[\s\S]*?white-space: nowrap;/,
+  );
+  assert.match(
+    source,
+    /\.wrapper\s*> a:first-child \{[\s\S]*?overflow: hidden;[\s\S]*?text-overflow: ellipsis;[\s\S]*?white-space: nowrap;/,
+  );
+});
+
+test('dashboard tables stay inside their cards while File uses remaining width', () => {
+  assert.match(
+    source,
+    /\.tm-rarbg-home-category table\.dataTable \{[\s\S]*?max-width: 100% !important;[\s\S]*?min-width: 0 !important;[\s\S]*?table-layout: fixed !important;/,
+  );
+  assert.match(
+    source,
+    /table th:nth-child\(2\),[\s\S]*?table td:nth-child\(2\) \{\s*width: auto !important;/,
+  );
+  assert.match(
+    source,
+    /\.tm-rarbg-home-category \.dataTables_wrapper \{[\s\S]*?max-width: 100%;/,
+  );
+});
+
+test('dashboard metadata columns are centred without shifting sort labels', () => {
+  assert.match(
+    source,
+    /table th:nth-child\(1\),[\s\S]*?table th:nth-child\(8\) \{[\s\S]*?padding: 12px 16px !important;[\s\S]*?text-align: center !important;/,
+  );
+  assert.match(
+    source,
+    /table td:nth-child\(1\),[\s\S]*?table td:nth-child\(8\) \{\s*text-align: center !important;/,
+  );
+});
+
+test('all Time columns use compact time-unit abbreviations', () => {
+  assert.match(source, /function abbreviateTableTimes\(container\)/);
+  assert.match(source, /container\.querySelectorAll\('table'\)/);
+  assert.match(source, /\^\(\?:time\|time since\)\$\/i/);
+  for (const [unit, label] of [
+    ['minute', 'm'],
+    ['minutes', 'm'],
+    ['hour', 'hr'],
+    ['hours', 'hrs'],
+    ['day', 'd'],
+    ['days', 'd'],
+    ['week', 'wk'],
+    ['weeks', 'wks'],
+    ['month', 'mo'],
+    ['months', 'mos'],
+    ['year', 'yr'],
+    ['years', 'yrs'],
+  ]) {
+    assert.match(source, new RegExp(`${unit}: '${label}'`));
+  }
+  assert.match(source, /abbreviateTableTimes\(document\)/);
 });
 
 test('adult-content visibility is synchronised with the XXX search filter', () => {
@@ -209,6 +461,13 @@ test('homepage category cards omit redundant ten-row table searches', () => {
   assert.match(
     source,
     /\.tm-rarbg-home-category \.dataTables_filter \{\s*display: none !important;/,
+  );
+});
+
+test('homepage category cards omit redundant ten-row table counts', () => {
+  assert.match(
+    source,
+    /\.tm-rarbg-home-category \.dataTables_info \{\s*display: none !important;/,
   );
 });
 
