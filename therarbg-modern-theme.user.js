@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TheRARBG Tampermonkey Theme
 // @namespace    local.therarbg.theme
-// @version      0.1.8
+// @version      0.1.9
 // @description  A cleaner, page-aware dark theme for TheRARBG.
 // @author       Citizen
 // @homepageURL  https://github.com/Ci303/therarbg-modern-theme
@@ -1202,10 +1202,14 @@
     }
 
     html.${ROOT_CLASS} #form_search > div:last-of-type {
-      display: flex;
+      display: none !important;
       align-items: center;
       justify-content: flex-end;
       gap: 8px;
+    }
+
+    html.${ROOT_CLASS} #form_search:has(#filterBtn.open) > div:last-of-type {
+      display: flex !important;
     }
 
     html.${ROOT_CLASS} #form_search button[type="reset"] {
@@ -1612,6 +1616,10 @@
       overflow-x: auto !important;
     }
 
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category .dataTables_filter {
+      display: none !important;
+    }
+
     html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category-wide {
       grid-column: 1 / -1;
     }
@@ -1639,7 +1647,7 @@
       position: sticky;
       top: 0;
       z-index: 20;
-      padding: 11px 10px !important;
+      padding: 12px 24px 12px 12px !important;
       border-top: 0 !important;
       border-right: 1px solid var(--tm-border) !important;
       border-bottom: 1px solid var(--tm-border-strong) !important;
@@ -3542,13 +3550,13 @@
     }
   }
 
-  function labelContentTypeColumns(container) {
+  function labelCoverColumns(container) {
     container.querySelectorAll('table.sortableTable2 thead th:first-child').forEach((heading) => {
       if (heading.textContent.trim().toUpperCase() !== 'C') return;
 
-      heading.textContent = 'Type';
-      heading.setAttribute('title', 'Content type');
-      heading.setAttribute('aria-label', 'Content type');
+      heading.textContent = 'Cover';
+      heading.setAttribute('title', 'Cover image');
+      heading.setAttribute('aria-label', 'Cover image');
     });
   }
 
@@ -3651,7 +3659,8 @@
     addPaletteControl();
     markFooter();
     labelSearchControls(document);
-    labelContentTypeColumns(document);
+    labelCoverColumns(document);
+    window.addEventListener('load', () => labelCoverColumns(document), { once: true });
 
     if (postContainer && isCatalogPage) markCatalogPage(postContainer);
     if (postContainer && isPostDetailPage) markPostDetailPage(postContainer);

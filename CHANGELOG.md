@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.9 - 2026-08-22
+
+- Collapse the Clear filters action and its empty row until the filter panel is opened.
+- Remove the redundant per-table search boxes from the ten-item homepage category cards.
+- Rename the cryptic `C` cover heading and improve table-header spacing around sort controls.
+
 ## 0.1.8 - 2026-08-22
 
 - Rename the userscript to **TheRARBG Tampermonkey Theme**.

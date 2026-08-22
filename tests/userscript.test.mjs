@@ -14,7 +14,7 @@ function metadataValues(name) {
 
 test('userscript metadata is safe and release-ready', () => {
   assert.deepEqual(metadataValues('name'), ['TheRARBG Tampermonkey Theme']);
-  assert.deepEqual(metadataValues('version'), ['0.1.8']);
+  assert.deepEqual(metadataValues('version'), ['0.1.9']);
   assert.deepEqual(metadataValues('grant'), ['none']);
   assert.deepEqual(metadataValues('match'), [
     'https://therarbg.com/',
@@ -160,15 +160,34 @@ test('search controls use available width and expose clear states', () => {
   assert.match(source, /display: contents !important;/);
   assert.match(source, /isOpen \? 'Hide filters' : 'Filters'/);
   assert.match(source, /resetButton\.textContent = 'Clear filters'/);
+  assert.match(
+    source,
+    /#form_search > div:last-of-type \{[\s\S]*?display: none !important;/,
+  );
+  assert.match(
+    source,
+    /#form_search:has\(#filterBtn\.open\) > div:last-of-type \{\s*display: flex !important;/,
+  );
   assert.match(source, /searchInput\.setAttribute\('aria-label', 'Search by title or IMDb ID'\)/);
   assert.match(source, /#filterOption > div:nth-child\(-n \+ 8\):has\(input:checked\)/);
 });
 
-test('cryptic content-type table headings are labelled clearly', () => {
+test('cover table headings are labelled clearly after DataTables initialises', () => {
   assert.match(source, /heading\.textContent\.trim\(\)\.toUpperCase\(\) !== 'C'/);
-  assert.match(source, /heading\.textContent = 'Type'/);
-  assert.match(source, /heading\.setAttribute\('aria-label', 'Content type'\)/);
-  assert.match(source, /labelContentTypeColumns\(document\)/);
+  assert.match(source, /heading\.textContent = 'Cover'/);
+  assert.match(source, /heading\.setAttribute\('aria-label', 'Cover image'\)/);
+  assert.match(source, /labelCoverColumns\(document\)/);
+  assert.match(
+    source,
+    /window\.addEventListener\('load', \(\) => labelCoverColumns\(document\), \{ once: true \}\)/,
+  );
+});
+
+test('sortable table headings reserve padding for labels and sort controls', () => {
+  assert.match(
+    source,
+    /table\.sortableTable2 thead th,[\s\S]*?table\.dataTable thead th \{[\s\S]*?padding: 12px 24px 12px 12px !important;/,
+  );
 });
 
 test('adult-content visibility is synchronised with the XXX search filter', () => {
@@ -185,6 +204,13 @@ test('showing thumbnails refreshes a carousel initialised while hidden', () => {
   assert.match(source, /#mySlides1\.slick-initialized/);
   assert.match(source, /carousel\.slick\('setPosition'\)/);
   assert.match(source, /if \(isOpen\) refreshThumbnailCarousel\(\)/);
+});
+
+test('homepage category cards omit redundant ten-row table searches', () => {
+  assert.match(
+    source,
+    /\.tm-rarbg-home-category \.dataTables_filter \{\s*display: none !important;/,
+  );
 });
 
 test('footer uses a borderless desktop row with a narrow-screen fallback', () => {
