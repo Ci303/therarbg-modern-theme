@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.8 - 2026-08-22
+
+- Rename the userscript to **TheRARBG Tampermonkey Theme**.
+- Extend the responsive palette theming to torrent-detail pages, including download controls, metadata, images, technical descriptions, similar posts, files, comments and modals.
+- Condense the shared footer into a single responsive desktop row.
+
 ## 0.1.7 - 2026-08-21
 
 - Hide, disable and clear the XXX search filter whenever the global XXX content switch is off.

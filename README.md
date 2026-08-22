@@ -1,14 +1,15 @@
-# TheRARBG Modern Results Theme
+# TheRARBG Tampermonkey Theme
 
 A local Tampermonkey userscript that gives TheRARBG a cleaner, responsive dark interface without changing the site's search, sorting, pagination or download behaviour.
 
 ## Features
 
-- Restyles the home, results and catalogue pages.
+- Restyles the home, results, catalogue and torrent-detail pages.
 - Arranges the homepage category lists into a responsive wide-screen dashboard: Movies with Documentaries, TV with Anime, Games with Apps, Music with Books, and a full-width XXX section at the bottom.
 - Includes 12 persistent dark palettes: Midnight, Black, Slate, Blue, Teal, Emerald, Olive, Amber, Crimson, Magenta, Purple and Espresso.
 - Improves torrent-list text size, spacing, contrast and responsive behaviour.
 - Restyles navigation, search controls, filters, catalogue tags and pagination.
+- Condenses the shared footer into a responsive site-wide utility row.
 - Corrects the appearance of malformed server-rendered pagination links.
 - Adds a **Show thumbnails** control for secondary carousel, tag and recent-search sections.
 - Uses no external dependencies or privileged userscript APIs.
@@ -34,6 +35,7 @@ The script runs on:
 - `https://therarbg.com/`
 - `https://therarbg.com/get-posts...` results and category pages
 - `https://therarbg.com/catalog...` catalogue pages
+- `https://therarbg.com/post-detail/...` torrent-detail pages
 
 It deliberately does not run on unrelated TheRARBG routes.
 
@@ -53,7 +55,7 @@ If you installed v0.1.4 manually, open the installation link once and confirm th
 
 ## Disable or remove
 
-Open the Tampermonkey dashboard and either switch off **TheRARBG Modern Results Theme** temporarily or delete it. Reload TheRARBG afterwards; the website itself is not modified.
+Open the Tampermonkey dashboard and either switch off **TheRARBG Tampermonkey Theme** temporarily or delete it. Reload TheRARBG afterwards; the website itself is not modified.
 
 ## Troubleshooting
 
