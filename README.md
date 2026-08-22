@@ -9,7 +9,7 @@ A local Tampermonkey userscript that gives TheRARBG a cleaner, responsive dark i
 - Removes the redundant per-table search boxes from the ten-item homepage category cards.
 - Includes 12 persistent dark palettes: Midnight, Black, Slate, Blue, Teal, Emerald, Olive, Amber, Crimson, Magenta, Purple and Espresso.
 - Improves torrent-list text size, spacing, contrast and responsive behaviour.
-- Labels cover columns clearly and reserves header spacing for sorting controls.
+- Removes the cryptic `C` type column and reserves header spacing for sorting controls.
 - Restyles navigation, search controls, filters, catalogue tags and pagination.
 - Collapses the Clear filters action and its row until the filter panel is opened.
 - Condenses the shared footer into a responsive site-wide utility row.

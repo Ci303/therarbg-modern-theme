@@ -172,14 +172,13 @@ test('search controls use available width and expose clear states', () => {
   assert.match(source, /#filterOption > div:nth-child\(-n \+ 8\):has\(input:checked\)/);
 });
 
-test('cover table headings are labelled clearly after DataTables initialises', () => {
+test('type indicator columns are hidden after DataTables initialises', () => {
   assert.match(source, /heading\.textContent\.trim\(\)\.toUpperCase\(\) !== 'C'/);
-  assert.match(source, /heading\.textContent = 'Cover'/);
-  assert.match(source, /heading\.setAttribute\('aria-label', 'Cover image'\)/);
-  assert.match(source, /labelCoverColumns\(document\)/);
+  assert.match(source, /table\.classList\.add\('tm-rarbg-hide-type-column'\)/);
+  assert.match(source, /hideTypeIndicatorColumns\(document\)/);
   assert.match(
     source,
-    /window\.addEventListener\('load', \(\) => labelCoverColumns\(document\), \{ once: true \}\)/,
+    /window\.addEventListener\('load', \(\) => hideTypeIndicatorColumns\(document\), \{ once: true \}\)/,
   );
 });
 
