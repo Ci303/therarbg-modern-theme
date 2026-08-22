@@ -1772,6 +1772,11 @@
       display: none !important;
     }
 
+    html.${ROOT_CLASS} table.tm-rarbg-hide-type-column th:first-child,
+    html.${ROOT_CLASS} table.tm-rarbg-hide-type-column td:first-child {
+      display: none !important;
+    }
+
     html.${ROOT_CLASS} .dataTables_info,
     html.${ROOT_CLASS} .dataTables_empty {
       padding: 12px !important;
@@ -3550,13 +3555,14 @@
     }
   }
 
-  function labelCoverColumns(container) {
+  function hideTypeIndicatorColumns(container) {
     container.querySelectorAll('table.sortableTable2 thead th:first-child').forEach((heading) => {
       if (heading.textContent.trim().toUpperCase() !== 'C') return;
 
-      heading.textContent = 'Cover';
-      heading.setAttribute('title', 'Cover image');
-      heading.setAttribute('aria-label', 'Cover image');
+      const table = heading.closest('table');
+      if (!table) return;
+
+      table.classList.add('tm-rarbg-hide-type-column');
     });
   }
 
@@ -3659,8 +3665,8 @@
     addPaletteControl();
     markFooter();
     labelSearchControls(document);
-    labelCoverColumns(document);
-    window.addEventListener('load', () => labelCoverColumns(document), { once: true });
+    hideTypeIndicatorColumns(document);
+    window.addEventListener('load', () => hideTypeIndicatorColumns(document), { once: true });
 
     if (postContainer && isCatalogPage) markCatalogPage(postContainer);
     if (postContainer && isPostDetailPage) markPostDetailPage(postContainer);
