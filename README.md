@@ -4,26 +4,10 @@ A local Tampermonkey userscript that gives TheRARBG a cleaner, responsive dark i
 
 ## Features
 
-- Restyles the home, compact navigation, results, catalogue and torrent-detail pages.
-- Arranges the homepage category lists into a responsive wide-screen dashboard: Movies with Documentaries, TV with Anime, Games with Apps, Music with Books, and a full-width XXX section at the bottom.
-- Removes the redundant per-table search boxes from the ten-item homepage category cards.
 - Includes 12 persistent dark palettes: Midnight, Black, Slate, Blue, Teal, Emerald, Olive, Amber, Crimson, Magenta, Purple and Espresso.
-- Improves torrent-list text size, spacing, contrast and responsive behaviour.
-- Labels the compact type indicator column clearly, removes the redundant homepage Category column and reserves header spacing for sorting controls.
-- Removes redundant per-table result counts from the ten-item homepage category cards.
-- Uses singular category names in homepage section headings where grammatically appropriate.
-- Applies the same padded, responsive results-table treatment to trending and `/get-posts` pages.
-- Gives `/main-page-list` a themed header, search panel and responsive navigation-tile grid.
-- Applies the responsive torrent dashboard to Top Ten pages and shared dark poster cards to Hot Picks, Latest Trailers and Box Office.
-- Restyles Movie and TV catalogue listings as contained responsive poster-and-table cards with themed dropdown filters.
-- Removes the obsolete Original RARBG tile from the compact navigation page.
-- Keeps dashboard filenames on one line with ellipsis and uses compact time-unit labels across all tables.
-- Removes leading Font Awesome and literal down arrows, expands seed/leech headers to `SE.` and `LE.`, and preserves DataTables sorting indicators.
-- Restyles navigation, search controls and filters, and uses one consistent pagination component across every themed page.
-- Collapses the Clear filters action and its row until the filter panel is opened.
-- Condenses the shared footer into a responsive site-wide utility row.
-- Corrects the appearance of malformed server-rendered pagination links.
-- Adds a **Show thumbnails** control for secondary carousel, tag and recent-search sections.
+- Applies a consistent responsive theme across home, results, trending, catalogue, feature and torrent-detail pages.
+- Improves torrent tables, catalogue cards and poster listings for clearer reading on desktop and mobile.
+- Unifies navigation, search filters, pagination and footer controls throughout the site.
 - Uses no external dependencies or privileged userscript APIs.
 
 ## Requirements
