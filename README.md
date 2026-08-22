@@ -1,14 +1,17 @@
 # TheRARBG Tampermonkey Theme
 
-A local Tampermonkey userscript that gives TheRARBG a cleaner, responsive dark interface without changing the site's search, sorting, pagination or download behaviour.
+A local Tampermonkey userscript that gives TheRARBG a cleaner, responsive dark interface without changing the site's main search, sorting, pagination or download behaviour.
 
 ## Features
 
 - Restyles the home, results, catalogue and torrent-detail pages.
 - Arranges the homepage category lists into a responsive wide-screen dashboard: Movies with Documentaries, TV with Anime, Games with Apps, Music with Books, and a full-width XXX section at the bottom.
+- Removes the redundant per-table search boxes from the ten-item homepage category cards.
 - Includes 12 persistent dark palettes: Midnight, Black, Slate, Blue, Teal, Emerald, Olive, Amber, Crimson, Magenta, Purple and Espresso.
 - Improves torrent-list text size, spacing, contrast and responsive behaviour.
+- Labels cover columns clearly and reserves header spacing for sorting controls.
 - Restyles navigation, search controls, filters, catalogue tags and pagination.
+- Collapses the Clear filters action and its row until the filter panel is opened.
 - Condenses the shared footer into a responsive site-wide utility row.
 - Corrects the appearance of malformed server-rendered pagination links.
 - Adds a **Show thumbnails** control for secondary carousel, tag and recent-search sections.
