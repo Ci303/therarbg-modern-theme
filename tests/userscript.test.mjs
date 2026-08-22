@@ -13,12 +13,14 @@ function metadataValues(name) {
 }
 
 test('userscript metadata is safe and release-ready', () => {
-  assert.deepEqual(metadataValues('version'), ['0.1.7']);
+  assert.deepEqual(metadataValues('name'), ['TheRARBG Tampermonkey Theme']);
+  assert.deepEqual(metadataValues('version'), ['0.1.8']);
   assert.deepEqual(metadataValues('grant'), ['none']);
   assert.deepEqual(metadataValues('match'), [
     'https://therarbg.com/',
     'https://therarbg.com/get-posts*',
     'https://therarbg.com/catalog*',
+    'https://therarbg.com/post-detail/*',
   ]);
   assert.deepEqual(metadataValues('require'), []);
   assert.deepEqual(metadataValues('connect'), []);
@@ -183,4 +185,44 @@ test('showing thumbnails refreshes a carousel initialised while hidden', () => {
   assert.match(source, /#mySlides1\.slick-initialized/);
   assert.match(source, /carousel\.slick\('setPosition'\)/);
   assert.match(source, /if \(isOpen\) refreshThumbnailCarousel\(\)/);
+});
+
+test('footer uses a borderless desktop row with a narrow-screen fallback', () => {
+  assert.match(source, /function markFooter\(\)/);
+  assert.match(source, /footer\.classList\.remove\('row', 'align-center'\)/);
+  assert.match(source, /footer\.classList\.add\('tm-rarbg-footer'\)/);
+  assert.match(source, /\.tm-rarbg-footer \{[\s\S]*?display: flex !important;[\s\S]*?flex-wrap: nowrap;[\s\S]*?border: 0 !important/);
+  assert.match(source, /\.tm-rarbg-footer-donation \{[\s\S]*?flex: 1 1 auto/);
+  assert.match(source, /\.tm-rarbg-footer-copyright \{[\s\S]*?margin-left: auto !important;[\s\S]*?text-align: right !important/);
+  assert.match(
+    source,
+    /@media \(max-width: 1099\.98px\) \{[\s\S]*?\.tm-rarbg-footer \{[\s\S]*?flex-direction: column/,
+  );
+  assert.match(source, /\n    markFooter\(\);\n/);
+});
+
+test('torrent-detail pages use isolated responsive theming', () => {
+  assert.match(source, /const POST_DETAIL_PAGE_CLASS = 'tm-rarbg-post-detail-page'/);
+  assert.match(
+    source,
+    /normalisedPath === '\/post-detail' \|\| normalisedPath\.startsWith\('\/post-detail\/'\)/,
+  );
+  assert.match(source, /root\.classList\.toggle\(POST_DETAIL_PAGE_CLASS, isPostDetailPage\)/);
+  assert.match(source, /function markPostDetailPage\(postContainer\)/);
+  assert.match(source, /detailTable\.classList\.add\('tm-rarbg-detail-table'\)/);
+  assert.match(source, /\.tm-rarbg-detail-row-description/);
+  assert.match(source, /\.similar-posts-container[\s\S]*?table\.sortableTable2/);
+  assert.match(source, /\.tm-rarbg-detail-row-trackers[\s\S]*?--bs-table-accent-bg: transparent/);
+  assert.match(source, /\.tm-rarbg-detail-row-trackers[\s\S]*?tbody \{[\s\S]*?background: var\(--tm-table\) !important/);
+  assert.match(source, /\.tm-rarbg-detail-table \.text-muted/);
+  assert.match(source, /\.comment-section \.text-muted/);
+  assert.match(source, /\.comment-form \.comment-btn \{[\s\S]*?margin-top: 10px !important/);
+  assert.match(source, /\.tm-rarbg-detail-back-row \{[\s\S]*?padding: 18px 0 12px !important/);
+  assert.match(source, /classList\.add\('tm-rarbg-detail-back-row'\)/);
+  assert.match(source, /\.modal-dialog table\.table \{/);
+  assert.match(source, /\.vote-button\.active\.upvote/);
+  assert.match(source, /\.comment-btn:disabled/);
+  assert.match(source, /\.comment-thread\.depth-1/);
+  assert.doesNotMatch(source, /\.comment-thread\[class\*="depth-"\]/);
+  assert.match(source, /if \(postContainer && isPostDetailPage\) markPostDetailPage\(postContainer\)/);
 });
