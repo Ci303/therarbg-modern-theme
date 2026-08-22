@@ -4,13 +4,22 @@ A local Tampermonkey userscript that gives TheRARBG a cleaner, responsive dark i
 
 ## Features
 
-- Restyles the home, results, catalogue and torrent-detail pages.
+- Restyles the home, compact navigation, results, catalogue and torrent-detail pages.
 - Arranges the homepage category lists into a responsive wide-screen dashboard: Movies with Documentaries, TV with Anime, Games with Apps, Music with Books, and a full-width XXX section at the bottom.
 - Removes the redundant per-table search boxes from the ten-item homepage category cards.
 - Includes 12 persistent dark palettes: Midnight, Black, Slate, Blue, Teal, Emerald, Olive, Amber, Crimson, Magenta, Purple and Espresso.
 - Improves torrent-list text size, spacing, contrast and responsive behaviour.
-- Removes the cryptic `C` type column and reserves header spacing for sorting controls.
-- Restyles navigation, search controls, filters, catalogue tags and pagination.
+- Labels the compact type indicator column clearly, removes the redundant homepage Category column and reserves header spacing for sorting controls.
+- Removes redundant per-table result counts from the ten-item homepage category cards.
+- Uses singular category names in homepage section headings where grammatically appropriate.
+- Applies the same padded, responsive results-table treatment to trending and `/get-posts` pages.
+- Gives `/main-page-list` a themed header, search panel and responsive navigation-tile grid.
+- Applies the responsive torrent dashboard to Top Ten pages and shared dark poster cards to Hot Picks, Latest Trailers and Box Office.
+- Restyles Movie and TV catalogue listings as contained responsive poster-and-table cards with themed dropdown filters.
+- Removes the obsolete Original RARBG tile from the compact navigation page.
+- Keeps dashboard filenames on one line with ellipsis and uses compact time-unit labels across all tables.
+- Removes leading Font Awesome and literal down arrows, expands seed/leech headers to `SE.` and `LE.`, and preserves DataTables sorting indicators.
+- Restyles navigation, search controls and filters, and uses one consistent pagination component across every themed page.
 - Collapses the Clear filters action and its row until the filter panel is opened.
 - Condenses the shared footer into a responsive site-wide utility row.
 - Corrects the appearance of malformed server-rendered pagination links.
@@ -37,7 +46,13 @@ The script runs on:
 
 - `https://therarbg.com/`
 - `https://therarbg.com/get-posts...` results and category pages
+- `https://therarbg.com/trending...` trending pages
 - `https://therarbg.com/catalog...` catalogue pages
+- `https://therarbg.com/main-page-list...` compact navigation pages
+- `https://therarbg.com/hot-pick-post/...` Hot Picks pages
+- `https://therarbg.com/top-ten-post/...` Top Ten pages
+- `https://therarbg.com/latest-trailer...` latest-trailer pages
+- `https://therarbg.com/box-office...` box-office pages
 - `https://therarbg.com/post-detail/...` torrent-detail pages
 
 It deliberately does not run on unrelated TheRARBG routes.

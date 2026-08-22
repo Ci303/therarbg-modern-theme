@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TheRARBG Tampermonkey Theme
 // @namespace    local.therarbg.theme
-// @version      0.1.9
+// @version      0.2.0
 // @description  A cleaner, page-aware dark theme for TheRARBG.
 // @author       Citizen
 // @homepageURL  https://github.com/Ci303/therarbg-modern-theme
@@ -10,6 +10,12 @@
 // @downloadURL  https://raw.githubusercontent.com/Ci303/therarbg-modern-theme/main/therarbg-modern-theme.user.js
 // @match        https://therarbg.com/
 // @match        https://therarbg.com/get-posts*
+// @match        https://therarbg.com/trending*
+// @match        https://therarbg.com/main-page-list*
+// @match        https://therarbg.com/hot-pick-post/*
+// @match        https://therarbg.com/top-ten-post/*
+// @match        https://therarbg.com/latest-trailer*
+// @match        https://therarbg.com/box-office*
 // @match        https://therarbg.com/catalog*
 // @match        https://therarbg.com/post-detail/*
 // @run-at       document-start
@@ -24,6 +30,9 @@
   const SHOW_EXTRAS_CLASS = 'tm-rarbg-show-extras';
   const CATEGORY_PAGE_CLASS = 'tm-rarbg-category-page';
   const HOME_PAGE_CLASS = 'tm-rarbg-home-page';
+  const MAIN_PAGE_LIST_CLASS = 'tm-rarbg-main-page-list';
+  const FEATURE_LIST_PAGE_CLASS = 'tm-rarbg-feature-list-page';
+  const CATALOG_LIST_PAGE_CLASS = 'tm-rarbg-catalog-list-page';
   const POST_DETAIL_PAGE_CLASS = 'tm-rarbg-post-detail-page';
   const EXTRAS_STORAGE_KEY = 'tmRarbgShowExtras';
   const PALETTE_STORAGE_KEY = 'tmRarbgPalette';
@@ -47,15 +56,35 @@
   const root = document.documentElement;
   const normalisedPath = location.pathname.replace(/\/+$/, '') || '/';
   const isHomePage = normalisedPath === '/';
+  const isTrendingPage =
+    normalisedPath === '/trending' || normalisedPath.startsWith('/trending/');
   const isResultsPage =
-    normalisedPath === '/get-posts' || normalisedPath.startsWith('/get-posts/');
+    normalisedPath === '/get-posts' ||
+    normalisedPath.startsWith('/get-posts/') ||
+    isTrendingPage;
   const isCatalogPage = normalisedPath === '/catalog';
+  const isCatalogListPage =
+    normalisedPath === '/catalog/movie' ||
+    normalisedPath.startsWith('/catalog/movie/') ||
+    normalisedPath === '/catalog/tv' ||
+    normalisedPath.startsWith('/catalog/tv/');
+  const isMainPageList = normalisedPath === '/main-page-list';
+  const isTopTenPage =
+    normalisedPath === '/top-ten-post' || normalisedPath.startsWith('/top-ten-post/');
+  const isFeatureListPage =
+    normalisedPath === '/hot-pick-post' ||
+    normalisedPath.startsWith('/hot-pick-post/') ||
+    normalisedPath === '/latest-trailer' ||
+    normalisedPath === '/box-office';
   const isPostDetailPage =
     normalisedPath === '/post-detail' || normalisedPath.startsWith('/post-detail/');
-  const isToolbarPage = isHomePage || isResultsPage;
+  const isToolbarPage = isHomePage || isResultsPage || isTopTenPage;
 
   root.classList.add(ROOT_CLASS);
-  root.classList.toggle(HOME_PAGE_CLASS, isHomePage);
+  root.classList.toggle(HOME_PAGE_CLASS, isHomePage || isTopTenPage);
+  root.classList.toggle(MAIN_PAGE_LIST_CLASS, isMainPageList);
+  root.classList.toggle(FEATURE_LIST_PAGE_CLASS, isFeatureListPage);
+  root.classList.toggle(CATALOG_LIST_PAGE_CLASS, isCatalogListPage);
   root.classList.toggle(POST_DETAIL_PAGE_CLASS, isPostDetailPage);
 
   function normalisePalette(value) {
@@ -1456,9 +1485,12 @@
     /* Results controls */
     html.${ROOT_CLASS} .tm-rarbg-results-row {
       display: block !important;
+      box-sizing: border-box;
       width: 100% !important;
       margin: 0 !important;
-      padding: 0 !important;
+      padding: 12px !important;
+      border-radius: 12px;
+      background: var(--tm-panel);
     }
 
     html.${ROOT_CLASS} .tm-rarbg-filter-bar {
@@ -1526,6 +1558,30 @@
       scrollbar-width: thin;
     }
 
+    html.${ROOT_CLASS} .tm-rarbg-results-row > .dataTables_wrapper {
+      box-sizing: border-box;
+      padding: 12px !important;
+    }
+
+    html.${ROOT_CLASS} .tm-rarbg-results-row table th:nth-child(1),
+    html.${ROOT_CLASS} .tm-rarbg-results-row table th:nth-child(4),
+    html.${ROOT_CLASS} .tm-rarbg-results-row table th:nth-child(5),
+    html.${ROOT_CLASS} .tm-rarbg-results-row table th:nth-child(6),
+    html.${ROOT_CLASS} .tm-rarbg-results-row table th:nth-child(7),
+    html.${ROOT_CLASS} .tm-rarbg-results-row table th:nth-child(8) {
+      padding: 12px 16px !important;
+      text-align: center !important;
+    }
+
+    html.${ROOT_CLASS} .tm-rarbg-results-row table td:nth-child(1),
+    html.${ROOT_CLASS} .tm-rarbg-results-row table td:nth-child(4),
+    html.${ROOT_CLASS} .tm-rarbg-results-row table td:nth-child(5),
+    html.${ROOT_CLASS} .tm-rarbg-results-row table td:nth-child(6),
+    html.${ROOT_CLASS} .tm-rarbg-results-row table td:nth-child(7),
+    html.${ROOT_CLASS} .tm-rarbg-results-row table td:nth-child(8) {
+      text-align: center !important;
+    }
+
     html.${ROOT_CLASS} .dataTables_filter {
       display: flex;
       float: none !important;
@@ -1571,7 +1627,7 @@
       height: 100%;
       padding: 14px;
       flex-direction: column;
-      overflow: hidden;
+      overflow: visible;
       border: 1px solid var(--tm-border);
       border-radius: 13px;
       background: var(--tm-panel-soft);
@@ -1610,14 +1666,120 @@
     html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category > .row {
       margin-right: 0 !important;
       margin-left: 0 !important;
+      padding: 0 !important;
     }
 
     html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category .dataTables_wrapper {
-      overflow-x: auto !important;
+      box-sizing: border-box;
+      width: 100% !important;
+      max-width: 100%;
+      padding: 12px !important;
+      overflow: visible !important;
+      border-radius: 10px;
+      background: var(--tm-table);
     }
 
     html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category .dataTables_filter {
       display: none !important;
+    }
+
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category .dataTables_info {
+      display: none !important;
+    }
+
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table th:nth-child(3),
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table td:nth-child(3) {
+      display: none !important;
+    }
+
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table.dataTable {
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
+      table-layout: fixed !important;
+    }
+
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table th:nth-child(1),
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table td:nth-child(1) {
+      width: 68px !important;
+    }
+
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table th:nth-child(2),
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table td:nth-child(2) {
+      width: auto !important;
+    }
+
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table th:nth-child(4),
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table td:nth-child(4) {
+      width: 86px !important;
+    }
+
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table td.cellName .wrapper {
+      display: flex;
+      min-width: 0;
+      align-items: center;
+      overflow: visible;
+      white-space: nowrap;
+    }
+
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS}
+      .tm-rarbg-home-category
+      table
+      td.cellName
+      .wrapper
+      > a:first-child {
+      display: block;
+      min-width: 0;
+      overflow: hidden;
+      flex: 1 1 auto;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS}
+      .tm-rarbg-home-category
+      table
+      td.cellName
+      .wrapper
+      > a:not(:first-child) {
+      flex: 0 0 auto;
+    }
+
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table th:nth-child(5),
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table td:nth-child(5) {
+      width: 72px !important;
+      white-space: nowrap;
+    }
+
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table th:nth-child(6),
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table td:nth-child(6) {
+      width: 78px !important;
+    }
+
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table th:nth-child(7),
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table td:nth-child(7),
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table th:nth-child(8),
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table td:nth-child(8) {
+      width: 56px !important;
+    }
+
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table th:nth-child(1),
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table th:nth-child(4),
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table th:nth-child(5),
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table th:nth-child(6),
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table th:nth-child(7),
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table th:nth-child(8) {
+      padding: 12px 16px !important;
+      text-align: center !important;
+    }
+
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table td:nth-child(1),
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table td:nth-child(4),
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table td:nth-child(5),
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table td:nth-child(6),
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table td:nth-child(7),
+    html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category table td:nth-child(8) {
+      text-align: center !important;
     }
 
     html.${ROOT_CLASS}.${HOME_PAGE_CLASS} .tm-rarbg-home-category-wide {
@@ -1642,6 +1804,7 @@
       background: transparent !important;
     }
 
+    html.${ROOT_CLASS} table.sortableTable thead th,
     html.${ROOT_CLASS} table.sortableTable2 thead th,
     html.${ROOT_CLASS} table.dataTable thead th {
       position: sticky;
@@ -1661,9 +1824,29 @@
       white-space: nowrap;
     }
 
+    html.${ROOT_CLASS} table.sortableTable thead th:last-child,
     html.${ROOT_CLASS} table.sortableTable2 thead th:last-child,
     html.${ROOT_CLASS} table.dataTable thead th:last-child {
       border-right: 0 !important;
+    }
+
+    html.${ROOT_CLASS} table.dataTable thead > tr > th.sorting,
+    html.${ROOT_CLASS} table.dataTable thead > tr > th.sorting_asc,
+    html.${ROOT_CLASS} table.dataTable thead > tr > th.sorting_desc {
+      padding-right: 30px !important;
+    }
+
+    html.${ROOT_CLASS} table.dataTable thead > tr > th.sorting::before,
+    html.${ROOT_CLASS} table.dataTable thead > tr > th.sorting::after,
+    html.${ROOT_CLASS} table.dataTable thead > tr > th.sorting_asc::before,
+    html.${ROOT_CLASS} table.dataTable thead > tr > th.sorting_asc::after,
+    html.${ROOT_CLASS} table.dataTable thead > tr > th.sorting_desc::before,
+    html.${ROOT_CLASS} table.dataTable thead > tr > th.sorting_desc::after {
+      right: 8px !important;
+    }
+
+    html.${ROOT_CLASS} table thead th a > i.fa-arrow-down {
+      display: none !important;
     }
 
     html.${ROOT_CLASS} table.sortableTable2 tbody tr,
@@ -1680,8 +1863,23 @@
 
     html.${ROOT_CLASS} table.sortableTable2 tbody tr:hover,
     html.${ROOT_CLASS} table.dataTable tbody tr:hover {
+      position: relative;
+      z-index: 50;
       background: var(--tm-row-hover) !important;
       box-shadow: inset 3px 0 0 var(--tm-accent);
+    }
+
+    html.${ROOT_CLASS} table.sortableTable .wrapper:hover,
+    html.${ROOT_CLASS} table.sortableTable2 .wrapper:hover,
+    html.${ROOT_CLASS} table.dataTable .wrapper:hover {
+      position: relative;
+      z-index: 70;
+    }
+
+    html.${ROOT_CLASS} table.sortableTable .wrapper:hover .tooltip,
+    html.${ROOT_CLASS} table.sortableTable2 .wrapper:hover .tooltip,
+    html.${ROOT_CLASS} table.dataTable .wrapper:hover .tooltip {
+      z-index: 80 !important;
     }
 
     html.${ROOT_CLASS} table.sortableTable2 tbody td,
@@ -1757,7 +1955,9 @@
       font-variant-numeric: tabular-nums;
     }
 
-    html.${ROOT_CLASS} table.sortableTable2 .tooltip img {
+    html.${ROOT_CLASS} table.sortableTable .tooltip img,
+    html.${ROOT_CLASS} table.sortableTable2 .tooltip img,
+    html.${ROOT_CLASS} table.dataTable .tooltip img {
       overflow: hidden;
       border: 1px solid var(--tm-border-strong);
       border-radius: 8px;
@@ -1765,15 +1965,18 @@
       box-shadow: var(--tm-shadow);
     }
 
+    html.${ROOT_CLASS}.${CATEGORY_PAGE_CLASS} table.sortableTable th:nth-child(1),
+    html.${ROOT_CLASS}.${CATEGORY_PAGE_CLASS} table.sortableTable td:nth-child(1),
+    html.${ROOT_CLASS}.${CATEGORY_PAGE_CLASS} table.sortableTable th:nth-child(3),
+    html.${ROOT_CLASS}.${CATEGORY_PAGE_CLASS} table.sortableTable td:nth-child(3),
     html.${ROOT_CLASS}.${CATEGORY_PAGE_CLASS} table.sortableTable2 th:nth-child(1),
     html.${ROOT_CLASS}.${CATEGORY_PAGE_CLASS} table.sortableTable2 td:nth-child(1),
     html.${ROOT_CLASS}.${CATEGORY_PAGE_CLASS} table.sortableTable2 th:nth-child(3),
-    html.${ROOT_CLASS}.${CATEGORY_PAGE_CLASS} table.sortableTable2 td:nth-child(3) {
-      display: none !important;
-    }
-
-    html.${ROOT_CLASS} table.tm-rarbg-hide-type-column th:first-child,
-    html.${ROOT_CLASS} table.tm-rarbg-hide-type-column td:first-child {
+    html.${ROOT_CLASS}.${CATEGORY_PAGE_CLASS} table.sortableTable2 td:nth-child(3),
+    html.${ROOT_CLASS}.${CATEGORY_PAGE_CLASS} table.dataTable th:nth-child(1),
+    html.${ROOT_CLASS}.${CATEGORY_PAGE_CLASS} table.dataTable td:nth-child(1),
+    html.${ROOT_CLASS}.${CATEGORY_PAGE_CLASS} table.dataTable th:nth-child(3),
+    html.${ROOT_CLASS}.${CATEGORY_PAGE_CLASS} table.dataTable td:nth-child(3) {
       display: none !important;
     }
 
@@ -1790,17 +1993,28 @@
     }
 
     html.${ROOT_CLASS} .pagination {
+      display: flex !important;
       margin: 0 !important;
-      padding: 0 !important;
+      padding: 0 0 16px !important;
       align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
       gap: 6px;
+      list-style: none;
     }
 
-    html.${ROOT_CLASS} .tm-rarbg-pagination-row .page-item > .page-link,
-    html.${ROOT_CLASS} .tm-rarbg-pagination-row .pagination > .page-link {
+    html.${ROOT_CLASS} .pagination > .page-item {
+      margin: 0 !important;
+    }
+
+    html.${ROOT_CLASS} .pagination .page-item > .page-link,
+    html.${ROOT_CLASS} .pagination > .page-link {
+      display: inline-flex;
       min-width: 36px;
       min-height: 38px;
       padding: 7px 10px !important;
+      align-items: center;
+      justify-content: center;
       border: 1px solid var(--tm-border) !important;
       border-radius: 8px !important;
       color: var(--tm-text-subtle) !important;
@@ -1809,36 +2023,36 @@
       text-align: center;
     }
 
-    html.${ROOT_CLASS} .tm-rarbg-pagination-row .page-item > .page-link:hover,
-    html.${ROOT_CLASS} .tm-rarbg-pagination-row .pagination > .page-link:hover {
+    html.${ROOT_CLASS} .pagination .page-item > .page-link:hover,
+    html.${ROOT_CLASS} .pagination > .page-link:hover {
       border-color: var(--tm-accent) !important;
       color: var(--tm-text-on-accent) !important;
       background: var(--tm-accent-soft) !important;
     }
 
-    html.${ROOT_CLASS} .tm-rarbg-pagination-row .page-item.active > .page-link,
-    html.${ROOT_CLASS} .tm-rarbg-pagination-row .pagination > .page-link.active,
-    html.${ROOT_CLASS} .tm-rarbg-pagination-row .pagination > .page-link[aria-current="page"] {
+    html.${ROOT_CLASS} .pagination .page-item.active > .page-link,
+    html.${ROOT_CLASS} .pagination > .page-link.active,
+    html.${ROOT_CLASS} .pagination > .page-link[aria-current="page"] {
       border-color: var(--tm-accent) !important;
       color: var(--tm-text-on-accent) !important;
       background: var(--tm-accent-strong) !important;
     }
 
-    html.${ROOT_CLASS} .tm-rarbg-pagination-row .page-item.disabled > .page-link,
-    html.${ROOT_CLASS} .tm-rarbg-pagination-row .pagination > .page-link.disabled {
+    html.${ROOT_CLASS} .pagination .page-item.disabled > .page-link,
+    html.${ROOT_CLASS} .pagination > .page-link.disabled {
       color: var(--tm-muted) !important;
       background: var(--tm-panel) !important;
       opacity: 0.55;
       pointer-events: none;
     }
 
-    html.${ROOT_CLASS} .tm-rarbg-pagination-row .pagination > span:not(.page-link) {
+    html.${ROOT_CLASS} .pagination > span:not(.page-link) {
       align-self: center;
       padding: 0 2px;
       color: var(--tm-muted);
     }
 
-    html.${ROOT_CLASS} .tm-rarbg-pagination-row .pagination > .page-item:empty {
+    html.${ROOT_CLASS} .pagination > .page-item:empty {
       display: none;
     }
 
@@ -1966,6 +2180,533 @@
 
     html.${ROOT_CLASS} .tm-rarbg-empty-catalog-row {
       display: none !important;
+    }
+
+    /* Movie and TV catalogue listings */
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .tm-rarbg-catalog-filter {
+      display: flex !important;
+      margin: 0 0 16px !important;
+      padding: 14px !important;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      border: 1px solid var(--tm-border);
+      border-radius: 12px;
+      background: var(--tm-panel-raised);
+    }
+
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .tm-rarbg-catalog-filter > h1 {
+      margin: 0 !important;
+      color: var(--tm-text) !important;
+      font-size: 18px !important;
+    }
+
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .tm-rarbg-catalog-filter > form {
+      display: flex !important;
+      min-width: 0;
+      margin: 0 !important;
+      align-items: center;
+      flex: 1 1 620px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .dropdown-filter {
+      margin: 0 !important;
+    }
+
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .dropdown-filter > .dropdown-toggle {
+      min-height: 38px;
+      padding: 8px 34px 8px 12px !important;
+      border: 1px solid var(--tm-border) !important;
+      border-radius: 9px !important;
+      color: var(--tm-text-soft) !important;
+      background: var(--tm-input) !important;
+    }
+
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .dropdown-filter > .dropdown-toggle:hover,
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .dropdown-filter > .dropdown-toggle.show {
+      border-color: var(--tm-accent) !important;
+      color: var(--tm-text) !important;
+      background: var(--tm-control-hover) !important;
+    }
+
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .dropdown-menu {
+      border: 1px solid var(--tm-border-strong) !important;
+      border-radius: 10px !important;
+      color: var(--tm-text) !important;
+      background: var(--tm-panel) !important;
+      box-shadow: var(--tm-shadow);
+    }
+
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .dropdown-menu .form-check-label,
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .dropdown-menu .form-label,
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .dropdown-menu .text-current {
+      color: var(--tm-text-soft) !important;
+    }
+
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .dropdown-menu .btn-theme {
+      border-color: var(--tm-accent-border) !important;
+      color: var(--tm-text-on-accent) !important;
+      background: var(--tm-primary-background) !important;
+    }
+
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} a.btn-primary.buttonalink {
+      border: 1px solid var(--tm-accent-border) !important;
+      color: var(--tm-text-on-accent) !important;
+      background: var(--tm-primary-background) !important;
+      font-weight: 700;
+      opacity: 1 !important;
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
+    }
+
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} a.btn-primary.buttonalink:hover,
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} a.btn-primary.buttonalink:focus {
+      border-color: var(--tm-focus) !important;
+      color: var(--tm-text-on-accent) !important;
+      background: var(--tm-primary-background-hover) !important;
+    }
+
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .tm-rarbg-catalog-kind-toggle {
+      border-color: var(--tm-border-strong) !important;
+      color: var(--tm-text-soft) !important;
+      background: var(--tm-panel-raised) !important;
+      text-shadow: none;
+    }
+
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .tm-rarbg-catalog-kind-toggle:hover,
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .tm-rarbg-catalog-kind-toggle:focus {
+      color: var(--tm-text) !important;
+      background: var(--tm-control-hover) !important;
+    }
+
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .tm-rarbg-catalog-kind-active,
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .tm-rarbg-catalog-kind-active:hover,
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .tm-rarbg-catalog-kind-active:focus {
+      border-color: var(--tm-focus) !important;
+      color: var(--tm-text-on-accent) !important;
+      background: var(--tm-primary-background) !important;
+      box-shadow: inset 0 -3px 0 var(--tm-focus), 0 0 0 2px var(--tm-accent-soft) !important;
+      cursor: default;
+    }
+
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .tm-rarbg-catalog-result {
+      display: grid !important;
+      grid-template-columns: minmax(150px, 190px) minmax(0, 1fr);
+      gap: 16px;
+      margin: 0 0 14px !important;
+      padding: 14px !important;
+      border: 1px solid var(--tm-border) !important;
+      border-radius: 12px;
+      color: var(--tm-text-soft) !important;
+      background: var(--tm-panel-raised) !important;
+      box-shadow: var(--tm-shadow);
+    }
+
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .tm-rarbg-catalog-result > div {
+      width: 100% !important;
+      min-width: 0;
+      padding: 0 !important;
+    }
+
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS}
+      .tm-rarbg-catalog-result
+      > div:first-child
+      > img {
+      display: block;
+      width: 100% !important;
+      max-width: 190px;
+      aspect-ratio: 2 / 3;
+      object-fit: cover;
+      border: 1px solid var(--tm-border);
+      border-radius: 9px;
+      background: var(--tm-input);
+    }
+
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS}
+      .tm-rarbg-catalog-result
+      > div:first-child
+      > br {
+      display: none !important;
+    }
+
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS}
+      .tm-rarbg-catalog-result
+      > div:first-child
+      > a {
+      display: block;
+      max-width: 190px;
+      margin-top: 10px;
+    }
+
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS}
+      .tm-rarbg-catalog-result
+      > div:first-child
+      .btn-small {
+      width: 100%;
+      min-height: 38px;
+      padding: 8px 10px !important;
+      border: 1px solid var(--tm-accent-border) !important;
+      border-radius: 8px !important;
+      color: var(--tm-text-on-accent) !important;
+      background: var(--tm-primary-background) !important;
+      text-align: center !important;
+    }
+
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .tm-rarbg-catalog-result .title {
+      margin: 0 0 10px !important;
+      padding: 10px 12px !important;
+      border: 1px solid var(--tm-border);
+      border-radius: 9px;
+      color: var(--tm-text-soft) !important;
+      background: var(--tm-panel-soft);
+      line-height: 1.45;
+      text-align: left !important;
+    }
+
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .tm-rarbg-catalog-result .title a {
+      color: var(--tm-text-link) !important;
+    }
+
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .tm-rarbg-catalog-result table.table {
+      display: table;
+      width: 100% !important;
+      min-width: 720px;
+      margin: 0 !important;
+      border-collapse: separate !important;
+      border-spacing: 0;
+      color: var(--tm-text-soft) !important;
+      background: var(--tm-table) !important;
+    }
+
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS}
+      .tm-rarbg-catalog-result
+      > div:last-child {
+      overflow-x: auto;
+      scrollbar-color: var(--tm-scrollbar) var(--tm-input);
+      scrollbar-width: thin;
+    }
+
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .tm-rarbg-catalog-result table.table td {
+      padding: 10px !important;
+      border-color: var(--tm-cell-border) !important;
+      color: var(--tm-text-soft) !important;
+      background: var(--tm-row) !important;
+      vertical-align: middle;
+    }
+
+    html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS}
+      .tm-rarbg-catalog-result
+      table.table
+      tr:nth-child(even)
+      td {
+      background: var(--tm-row-alt) !important;
+    }
+
+    @media (max-width: 767.98px) {
+      html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .tm-rarbg-catalog-filter {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .tm-rarbg-catalog-filter > form {
+        flex-basis: auto;
+      }
+
+      html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .tm-rarbg-catalog-result {
+        grid-template-columns: minmax(120px, 150px) minmax(0, 1fr);
+        padding: 12px !important;
+      }
+    }
+
+    @media (max-width: 575.98px) {
+      html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS} .tm-rarbg-catalog-result {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS}
+        .tm-rarbg-catalog-result
+        > div:first-child
+        > img,
+      html.${ROOT_CLASS}.${CATALOG_LIST_PAGE_CLASS}
+        .tm-rarbg-catalog-result
+        > div:first-child
+        > a {
+        margin-right: auto;
+        margin-left: auto;
+      }
+    }
+
+    /* Compact main-page navigation */
+    html.${ROOT_CLASS}.${MAIN_PAGE_LIST_CLASS} body.postBody.container {
+      max-width: 1180px !important;
+    }
+
+    html.${ROOT_CLASS}.${MAIN_PAGE_LIST_CLASS} .tm-rarbg-main-list-shell {
+      display: flex;
+      min-height: 0 !important;
+      flex-direction: column;
+      gap: 12px;
+      text-align: left !important;
+    }
+
+    html.${ROOT_CLASS}.${MAIN_PAGE_LIST_CLASS} .tm-rarbg-main-list-shell > br {
+      display: none !important;
+    }
+
+    html.${ROOT_CLASS}.${MAIN_PAGE_LIST_CLASS} .tm-rarbg-main-list-header {
+      display: flex;
+      min-height: 76px;
+      padding: 12px 16px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border: 1px solid var(--tm-border);
+      border-radius: 14px;
+      background: var(--tm-panel);
+      box-shadow: var(--tm-shadow);
+    }
+
+    html.${ROOT_CLASS}.${MAIN_PAGE_LIST_CLASS} .tm-rarbg-main-list-logo-link {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    html.${ROOT_CLASS}.${MAIN_PAGE_LIST_CLASS} .tm-rarbg-main-list-logo-link .logo {
+      width: 140px !important;
+      margin: 0 !important;
+    }
+
+    html.${ROOT_CLASS}.${MAIN_PAGE_LIST_CLASS} .tm-rarbg-main-list-panel {
+      display: block !important;
+      width: 100% !important;
+      padding: 18px !important;
+      border: 1px solid var(--tm-border) !important;
+      border-radius: 14px !important;
+      background: var(--tm-panel) !important;
+      box-shadow: var(--tm-shadow);
+      text-align: left !important;
+    }
+
+    html.${ROOT_CLASS}.${MAIN_PAGE_LIST_CLASS} .tm-rarbg-main-list-panel > br {
+      display: none !important;
+    }
+
+    html.${ROOT_CLASS}.${MAIN_PAGE_LIST_CLASS} .tm-rarbg-main-list-panel .tm-rarbg-adult-control {
+      margin: 0 0 12px !important;
+      justify-content: flex-end;
+    }
+
+    html.${ROOT_CLASS}.${MAIN_PAGE_LIST_CLASS} .tm-rarbg-main-list-search {
+      display: block !important;
+      margin: 0 0 18px !important;
+      padding: 14px !important;
+      border: 1px solid var(--tm-border);
+      border-radius: 12px;
+      background: var(--tm-panel-raised);
+    }
+
+    html.${ROOT_CLASS}.${MAIN_PAGE_LIST_CLASS} .tm-rarbg-main-list-search #form_search {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    html.${ROOT_CLASS}.${MAIN_PAGE_LIST_CLASS} .tm-rarbg-main-list-search #filterOption,
+    html.${ROOT_CLASS}.${MAIN_PAGE_LIST_CLASS}
+      .tm-rarbg-main-list-search
+      #form_search
+      > div:last-of-type {
+      grid-column: 1;
+      grid-row: auto;
+    }
+
+    html.${ROOT_CLASS}.${MAIN_PAGE_LIST_CLASS} .tm-rarbg-main-list-tiles {
+      display: grid !important;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      width: 100% !important;
+    }
+
+    html.${ROOT_CLASS}.${MAIN_PAGE_LIST_CLASS} .tm-rarbg-main-list-tiles .tile {
+      width: auto !important;
+      min-width: 0;
+      min-height: 98px;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: 0 !important;
+      background: transparent !important;
+    }
+
+    html.${ROOT_CLASS}.${MAIN_PAGE_LIST_CLASS} .tm-rarbg-main-list-tiles .tile > a {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      min-height: 98px;
+      padding: 16px;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 8px;
+      border: 1px solid var(--tm-accent-border-soft);
+      border-radius: 11px;
+      color: var(--tm-text) !important;
+      background: var(--tm-primary-background) !important;
+      font-size: 16px;
+      font-weight: 700;
+      text-align: center;
+      transition: transform 140ms ease, border-color 140ms ease, background-color 140ms ease;
+    }
+
+    html.${ROOT_CLASS}.${MAIN_PAGE_LIST_CLASS} .tm-rarbg-main-list-tiles .tile > a:hover {
+      transform: translateY(-2px);
+      border-color: var(--tm-accent) !important;
+      background: var(--tm-control-hover) !important;
+    }
+
+    html.${ROOT_CLASS}.${MAIN_PAGE_LIST_CLASS} .tm-rarbg-main-list-tiles .tile i {
+      color: var(--tm-focus);
+      font-size: 18px;
+    }
+
+    /* Poster-card feature listings */
+    html.${ROOT_CLASS}.${FEATURE_LIST_PAGE_CLASS} .tm-rarbg-feature-title {
+      margin: 0 0 18px !important;
+      padding: 4px 2px 14px !important;
+      border-bottom: 1px solid var(--tm-border);
+      color: var(--tm-text) !important;
+      font-size: clamp(22px, 2.2vw, 32px) !important;
+      line-height: 1.25;
+    }
+
+    html.${ROOT_CLASS}.${FEATURE_LIST_PAGE_CLASS} .postCont > .row.p-4 {
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    html.${ROOT_CLASS}.${FEATURE_LIST_PAGE_CLASS} [class*="col-"]:has(> .tm-rarbg-feature-card) {
+      display: flex;
+    }
+
+    html.${ROOT_CLASS}.${FEATURE_LIST_PAGE_CLASS} .tm-rarbg-feature-card {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      flex-direction: column;
+      border: 1px solid var(--tm-border) !important;
+      border-radius: 12px !important;
+      color: var(--tm-text) !important;
+      background: var(--tm-panel-raised) !important;
+      box-shadow: var(--tm-shadow) !important;
+      cursor: pointer;
+      transition: transform 140ms ease, border-color 140ms ease;
+    }
+
+    html.${ROOT_CLASS}.${FEATURE_LIST_PAGE_CLASS} .tm-rarbg-feature-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--tm-accent) !important;
+    }
+
+    html.${ROOT_CLASS}.${FEATURE_LIST_PAGE_CLASS} .tm-rarbg-feature-card > a,
+    html.${ROOT_CLASS}.${FEATURE_LIST_PAGE_CLASS} .tm-rarbg-feature-card > img {
+      display: block;
+      width: 100%;
+    }
+
+    html.${ROOT_CLASS}.${FEATURE_LIST_PAGE_CLASS} .tm-rarbg-feature-card img.img-fluid {
+      width: 100%;
+      aspect-ratio: 2 / 3;
+      object-fit: cover;
+      background: var(--tm-input);
+    }
+
+    html.${ROOT_CLASS}.${FEATURE_LIST_PAGE_CLASS} .tm-rarbg-feature-card > .p-4 {
+      display: flex;
+      padding: 14px !important;
+      flex: 1 1 auto;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    html.${ROOT_CLASS}.${FEATURE_LIST_PAGE_CLASS} .tm-rarbg-feature-card h5 {
+      margin: 0 !important;
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    html.${ROOT_CLASS}.${FEATURE_LIST_PAGE_CLASS} .tm-rarbg-feature-card .text-dark,
+    html.${ROOT_CLASS}.${FEATURE_LIST_PAGE_CLASS} .tm-rarbg-feature-card h5 a {
+      color: var(--tm-text-link) !important;
+    }
+
+    html.${ROOT_CLASS}.${FEATURE_LIST_PAGE_CLASS} .tm-rarbg-feature-card .text-muted {
+      display: -webkit-box;
+      overflow: hidden;
+      color: var(--tm-muted) !important;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 4;
+    }
+
+    html.${ROOT_CLASS}.${FEATURE_LIST_PAGE_CLASS} .tm-rarbg-feature-card .bg-light {
+      margin-top: auto !important;
+      border: 1px solid var(--tm-border);
+      color: var(--tm-text-soft) !important;
+      background: var(--tm-input) !important;
+    }
+
+    html.${ROOT_CLASS}.${FEATURE_LIST_PAGE_CLASS} .tm-rarbg-feature-card .badge-danger,
+    html.${ROOT_CLASS}.${FEATURE_LIST_PAGE_CLASS} .tm-rarbg-feature-card .badge.badge-danger {
+      color: var(--tm-text-on-accent) !important;
+      background: var(--tm-danger) !important;
+    }
+
+    html.${ROOT_CLASS}.${FEATURE_LIST_PAGE_CLASS} .modal-content {
+      overflow: hidden;
+      border: 1px solid var(--tm-border-strong) !important;
+      border-radius: 12px !important;
+      color: var(--tm-text) !important;
+      background: var(--tm-panel) !important;
+      box-shadow: var(--tm-shadow);
+    }
+
+    html.${ROOT_CLASS}.${FEATURE_LIST_PAGE_CLASS} .modal-header {
+      border-bottom-color: var(--tm-border) !important;
+      background: var(--tm-panel-raised) !important;
+    }
+
+    html.${ROOT_CLASS}.${FEATURE_LIST_PAGE_CLASS} .modal-body {
+      background: var(--tm-bg) !important;
+    }
+
+    @media (max-width: 767.98px) {
+      html.${ROOT_CLASS}.${MAIN_PAGE_LIST_CLASS} .tm-rarbg-main-list-tiles {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      html.${ROOT_CLASS}.${MAIN_PAGE_LIST_CLASS} .tm-rarbg-main-list-header,
+      html.${ROOT_CLASS}.${MAIN_PAGE_LIST_CLASS} .tm-rarbg-main-list-panel {
+        padding: 12px !important;
+      }
+    }
+
+    @media (max-width: 479.98px) {
+      html.${ROOT_CLASS}.${MAIN_PAGE_LIST_CLASS} .tm-rarbg-main-list-header {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      html.${ROOT_CLASS}.${MAIN_PAGE_LIST_CLASS} .tm-rarbg-main-list-header .tm-rarbg-palette-control {
+        width: 100%;
+      }
+
+      html.${ROOT_CLASS}.${MAIN_PAGE_LIST_CLASS} .tm-rarbg-main-list-header .tm-rarbg-palette-select {
+        flex: 1 1 auto;
+      }
+
+      html.${ROOT_CLASS}.${MAIN_PAGE_LIST_CLASS} .tm-rarbg-main-list-tiles {
+        grid-template-columns: minmax(0, 1fr);
+      }
     }
 
     /* Torrent detail page */
@@ -3216,7 +3957,7 @@
       }
 
       html.${ROOT_CLASS} .page-item .page-link,
-      html.${ROOT_CLASS} .tm-rarbg-pagination-row .pagination > .page-link {
+      html.${ROOT_CLASS} .pagination > .page-link {
         min-width: 32px;
         min-height: 32px;
         padding: 6px 8px !important;
@@ -3275,6 +4016,23 @@
       };
     }
 
+    if (isTopTenPage) {
+      root.classList.remove(CATEGORY_PAGE_CLASS);
+      return {
+        title: 'Top torrents',
+        context: 'Top 10 by category',
+      };
+    }
+
+    if (isTrendingPage) {
+      const [, count = '', category = ''] = normalisedPath.split('/').filter(Boolean);
+      root.classList.toggle(CATEGORY_PAGE_CLASS, Boolean(category));
+      return {
+        title: category ? `Trending ${decodePathValue(category)} torrents` : 'Trending torrents',
+        context: count ? `Top ${decodePathValue(count)}` : 'TheRARBG trending',
+      };
+    }
+
     const categoryMatch = /(?:^|[/:])category:([^/:]+)/i.exec(location.pathname);
     const timeMatch = /(?:^|:)time:([^/:]+)/i.exec(location.pathname);
     const keywordMatch = /(?:^|\/)keywords:([^/:]+)/i.exec(location.pathname);
@@ -3308,7 +4066,9 @@
   }
 
   function addPaletteControl() {
-    const headerNavigation = document.querySelector('.postContUp');
+    const headerNavigation = document.querySelector(
+      '.postContUp, .tm-rarbg-main-list-header',
+    );
     if (!headerNavigation || document.getElementById('tm-rarbg-palette-select')) return;
 
     const control = makeElement('label', 'tm-rarbg-palette-control');
@@ -3402,8 +4162,10 @@
 
     prepareSearchControls(postContainer);
 
-    const table = postContainer.querySelector('table.sortableTable2');
-    const resultsRow = table?.closest('.row.p-1');
+    const table = postContainer.querySelector(
+      isTrendingPage ? 'table.sortableTable, table.dataTable' : 'table.sortableTable2',
+    );
+    const resultsRow = table?.closest(isTrendingPage ? '.row' : '.row.p-1');
     resultsRow?.classList.add('tm-rarbg-results-row');
 
     if (resultsRow) {
@@ -3411,16 +4173,18 @@
       filterBar?.classList.add('tm-rarbg-filter-bar');
     }
 
-    postContainer.querySelectorAll('.pagination').forEach((pagination) => {
-      pagination.closest('.row')?.classList.add('tm-rarbg-pagination-row');
-    });
-
     const extraSections = [...postContainer.querySelectorAll('.tm-rarbg-extra-section')];
     extraSections.forEach((section, index) => {
       if (!section.id) section.id = `tm-rarbg-extra-section-${index + 1}`;
     });
 
     return extraSections;
+  }
+
+  function markPagination(container) {
+    container.querySelectorAll('.pagination').forEach((pagination) => {
+      pagination.closest('.row')?.classList.add('tm-rarbg-pagination-row');
+    });
   }
 
   function markPostDetailPage(postContainer) {
@@ -3483,24 +4247,98 @@
     }
   }
 
+  function markCatalogListPage(postContainer) {
+    prepareSearchControls(postContainer);
+    postContainer.querySelector('.layout-filter')?.classList.add('tm-rarbg-catalog-filter');
+
+    const activeCatalogKind = normalisedPath.startsWith('/catalog/tv') ? 'tv' : 'movie';
+    postContainer
+      .querySelectorAll('a[href="/catalog/movie/"], a[href="/catalog/tv/"]')
+      .forEach((link) => {
+        const linkKind = link.getAttribute('href').includes('/tv/') ? 'tv' : 'movie';
+        const isActive = linkKind === activeCatalogKind;
+        link.classList.add('tm-rarbg-catalog-kind-toggle');
+        link.classList.toggle('tm-rarbg-catalog-kind-active', isActive);
+        if (isActive) link.setAttribute('aria-current', 'page');
+      });
+
+    const specialGenreLabels = {
+      'game-show': 'Game Show',
+      'reality-tv': 'Reality TV',
+      'sci-fi': 'Sci-Fi',
+      'talk-show': 'Talk Show',
+      'film-noir': 'Film Noir',
+    };
+    postContainer
+      .querySelectorAll('.catalog-genre > a.buttonalink, .form-category .form-check-label')
+      .forEach((label) => {
+        const originalLabel = label.textContent.trim();
+        const normalisedLabel = originalLabel.toLowerCase();
+        label.textContent =
+          specialGenreLabels[normalisedLabel] ||
+          normalisedLabel
+            .replace(/-/g, ' ')
+            .replace(/\b\w/g, (letter) => letter.toUpperCase());
+      });
+
+    postContainer.querySelectorAll('.row.py-3').forEach((row) => {
+      const hasPosterColumn = row.querySelector(':scope > .col-md-2 > img');
+      const hasTorrentTable = row.querySelector(':scope > .col-md-10 table.table');
+      if (hasPosterColumn && hasTorrentTable) row.classList.add('tm-rarbg-catalog-result');
+    });
+  }
+
+  function markMainPageList(postContainer) {
+    const shell = postContainer.parentElement;
+    if (!shell) return;
+
+    shell.classList.add('tm-rarbg-main-list-shell');
+    postContainer.classList.add('tm-rarbg-main-list-panel');
+    postContainer.querySelector('.searchSec')?.classList.add('tm-rarbg-main-list-search');
+    postContainer.querySelector('.tileCont')?.classList.add('tm-rarbg-main-list-tiles');
+    postContainer
+      .querySelector('.tile a[href="/get-posts/user:ORARBG/"]')
+      ?.closest('.tile')
+      ?.remove();
+    prepareSearchControls(postContainer);
+
+    const logoLink = [...shell.children].find(
+      (element) => element.matches('a') && element.querySelector(':scope > .logo'),
+    );
+    if (!logoLink || shell.querySelector(':scope > .tm-rarbg-main-list-header')) return;
+
+    const header = makeElement('header', 'tm-rarbg-main-list-header');
+    logoLink.classList.add('tm-rarbg-main-list-logo-link');
+    logoLink.before(header);
+    header.append(logoLink);
+  }
+
+  function markFeatureListPage(postContainer) {
+    postContainer.querySelector(':scope > h1')?.classList.add('tm-rarbg-feature-title');
+    postContainer.querySelectorAll('.bg-white.rounded.shadow-sm').forEach((card) => {
+      card.classList.add('tm-rarbg-feature-card');
+    });
+  }
+
   const HOME_SECTION_LAYOUT = [
-    ['.isMovies', 'movies'],
-    ['.isDocumentaries', 'documentaries'],
-    ['.isTV', 'tv'],
-    ['.isAnime', 'anime'],
-    ['.isGames', 'games'],
-    ['.isApps', 'apps'],
-    ['.isMusic', 'music'],
-    ['.isBooks', 'books'],
-    ['.isXXX', 'xxx'],
+    ['.isMovies', 'movies', 'Movie'],
+    ['.isDocumentaries', 'documentaries', 'Documentary'],
+    ['.isTV', 'tv', 'TV'],
+    ['.isAnime', 'anime', 'Anime'],
+    ['.isGames', 'games', 'Game'],
+    ['.isApps', 'apps', 'App'],
+    ['.isMusic', 'music', 'Music'],
+    ['.isBooks', 'books', 'Book'],
+    ['.isXXX', 'xxx', 'XXX'],
   ];
 
   function arrangeHomeSections(postContainer) {
-    if (!isHomePage || postContainer.querySelector('.tm-rarbg-home-grid')) return;
+    if (!(isHomePage || isTopTenPage) || postContainer.querySelector('.tm-rarbg-home-grid')) return;
 
-    const sections = HOME_SECTION_LAYOUT.map(([selector, name]) => ({
+    const sections = HOME_SECTION_LAYOUT.map(([selector, name, singularLabel]) => ({
       element: postContainer.querySelector(selector),
       name,
+      singularLabel,
     })).filter(({ element }) => element);
 
     if (sections.length === 0) return;
@@ -3509,8 +4347,10 @@
     grid.setAttribute('aria-label', 'Top torrents by category');
     sections[0].element.before(grid);
 
-    for (const { element, name } of sections) {
+    for (const { element, name, singularLabel } of sections) {
       element.classList.add('tm-rarbg-home-category', `tm-rarbg-home-category-${name}`);
+      const heading = element.querySelector(':scope > h2');
+      if (heading) heading.textContent = `Top ${singularLabel} Torrents`;
       element
         .querySelector(':scope > .text-start:last-child')
         ?.classList.add('tm-rarbg-home-actions');
@@ -3555,14 +4395,71 @@
     }
   }
 
-  function hideTypeIndicatorColumns(container) {
-    container.querySelectorAll('table.sortableTable2 thead th:first-child').forEach((heading) => {
-      if (heading.textContent.trim().toUpperCase() !== 'C') return;
+  function labelTableColumns(container) {
+    container.querySelectorAll('table thead th').forEach((heading) => {
+      const originalLabel = heading.textContent.trim();
+      const labelWithoutDownArrow = originalLabel.replace(/^↓\s*/, '');
+      const match = /^(C\.?|S\.|L\.)$/i.exec(labelWithoutDownArrow);
+      const labelByValue = {
+        C: 'Type',
+        'C.': 'Type',
+        'S.': 'SE.',
+        'L.': 'LE.',
+      };
+      const label = match
+        ? labelByValue[match[1].toUpperCase()]
+        : labelWithoutDownArrow;
 
-      const table = heading.closest('table');
-      if (!table) return;
+      if (label !== originalLabel) heading.textContent = label;
 
-      table.classList.add('tm-rarbg-hide-type-column');
+      if (label === 'Type') {
+        heading.setAttribute('title', 'Torrent type');
+        heading.setAttribute('aria-label', 'Torrent type');
+      }
+    });
+  }
+
+  function abbreviateTableTimes(container) {
+    const unitLabels = {
+      minute: 'm',
+      minutes: 'm',
+      hour: 'hr',
+      hours: 'hrs',
+      day: 'd',
+      days: 'd',
+      week: 'wk',
+      weeks: 'wks',
+      month: 'mo',
+      months: 'mos',
+      year: 'yr',
+      years: 'yrs',
+    };
+
+    container.querySelectorAll('table').forEach((table) => {
+      const headings = [...table.querySelectorAll('thead th')];
+      const timeColumnIndex = headings.findIndex((heading) =>
+        /^(?:time|time since)$/i.test(heading.textContent.trim()),
+      );
+      if (timeColumnIndex < 0) return;
+
+      table.querySelectorAll('tbody tr').forEach((row) => {
+        const cell = row.cells[timeColumnIndex];
+        if (!cell) return;
+
+        const value = cell.textContent.trim().replace(
+          /\b(\d+)\s+(minutes?|hours?|days?|weeks?|months?|years?)\b/gi,
+          (_, amount, unit) => {
+            const label = unitLabels[unit.toLowerCase()];
+            return label === 'm' || label === 'd'
+              ? `${amount}${label}`
+              : `${amount} ${label}`;
+          },
+        );
+
+        const valueElement = cell.querySelector('div');
+        if (valueElement) valueElement.textContent = value;
+        else cell.textContent = value;
+      });
     });
   }
 
@@ -3662,13 +4559,17 @@
   function initialiseTheme() {
     const postContainer = document.querySelector(isPostDetailPage ? '.postContL' : '.postCont');
 
+    if (postContainer && isMainPageList) markMainPageList(postContainer);
+    if (postContainer && isFeatureListPage) markFeatureListPage(postContainer);
     addPaletteControl();
     markFooter();
+    markPagination(document);
     labelSearchControls(document);
-    hideTypeIndicatorColumns(document);
-    window.addEventListener('load', () => hideTypeIndicatorColumns(document), { once: true });
+    labelTableColumns(document);
+    window.addEventListener('load', () => labelTableColumns(document), { once: true });
 
     if (postContainer && isCatalogPage) markCatalogPage(postContainer);
+    if (postContainer && isCatalogListPage) markCatalogListPage(postContainer);
     if (postContainer && isPostDetailPage) markPostDetailPage(postContainer);
 
     if (postContainer && isToolbarPage) {
@@ -3676,7 +4577,12 @@
       addToolbar(postContainer, extraSections);
     }
 
-    if (postContainer && isHomePage) arrangeHomeSections(postContainer);
+    if (postContainer && (isHomePage || isTopTenPage)) {
+      arrangeHomeSections(postContainer);
+    }
+
+    abbreviateTableTimes(document);
+    window.addEventListener('load', () => abbreviateTableTimes(document), { once: true });
 
     hideKnownClickCatchers();
 
@@ -3686,6 +4592,8 @@
     let checksRemaining = 20;
     const overlayTimer = window.setInterval(() => {
       hideKnownClickCatchers();
+      labelTableColumns(document);
+      abbreviateTableTimes(document);
       checksRemaining -= 1;
       if (checksRemaining <= 0) window.clearInterval(overlayTimer);
     }, 500);
