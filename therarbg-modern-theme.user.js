@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TheRARBG Tampermonkey Theme
 // @namespace    local.therarbg.theme
-// @version      0.2.0
+// @version      0.2.1
 // @description  A cleaner, page-aware dark theme for TheRARBG.
 // @author       Citizen
 // @homepageURL  https://github.com/Ci303/therarbg-modern-theme
