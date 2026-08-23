@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1 - 2026-08-24
+
+- Condense the README feature summary to the most useful end-user highlights.
+
 ## 0.2.0 - 2026-08-22
 
 - Standardise pagination buttons and their bottom spacing across every themed route, including poster-card listings.
